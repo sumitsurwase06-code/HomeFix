@@ -1,0 +1,219 @@
+.auth-page-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background-color: var(--bg);
+  background-image: 
+    radial-gradient(circle at 50% 10%, rgba(212, 239, 105, 0.05) 0%, transparent 60%),
+    radial-gradient(rgba(241, 242, 233, 0.06) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.auth-brand-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+
+.auth-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.025em;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+.auth-card {
+  padding: 2.25rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-xl);
+  border-radius: var(--radius-lg);
+}
+
+.auth-demo-notice {
+  background-color: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  color: #fde68a;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.demo-persona-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.persona-card {
+  background-color: var(--surface-raised);
+  border: 1px solid var(--line);
+  padding: 0.55rem 0.4rem;
+  border-radius: var(--radius-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.persona-card:hover {
+  border-color: rgba(212, 239, 105, 0.3);
+  background-color: var(--surface-soft);
+}
+
+.persona-card.active {
+  background-color: rgba(212, 239, 105, 0.12);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.persona-role {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+}
+
+.persona-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 0.15rem;
+}
+
+.auth-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  font-size: var(--font-size-xs);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  accent-color: var(--primary);
+}
+
+.auth-link-sm {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.auth-link-sm:hover {
+  color: #e2f788;
+}
+
+.auth-footer-prompt {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.auth-link-bold {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.auth-link-bold:hover {
+  color: #e2f788;
+}
+
+.auth-error-banner {
+  background-color: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--coral);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.role-selector-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.role-radio-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  background-color: var(--surface-raised);
+}
+
+.role-radio-card:hover {
+  border-color: rgba(212, 239, 105, 0.3);
+  background-color: var(--surface-soft);
+}
+
+.role-radio-card.selected {
+  border-color: var(--primary);
+  background-color: rgba(212, 239, 105, 0.1);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.role-icon {
+  color: var(--primary);
+  margin-bottom: 0.35rem;
+}
+
+.role-label-title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.role-label-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: center;
+}

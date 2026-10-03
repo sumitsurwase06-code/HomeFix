@@ -1,0 +1,111 @@
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.input-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.input-required {
+  color: var(--coral);
+}
+
+.input-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-control {
+  width: 100%;
+  padding: 0.65rem 0.875rem;
+  font-size: var(--font-size-sm);
+  color: var(--text);
+  background-color: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.input-control::placeholder {
+  color: var(--text-light);
+}
+
+.input-control:hover:not(:disabled) {
+  border-color: rgba(241, 242, 233, 0.2);
+}
+
+.input-control:focus {
+  border-color: var(--primary);
+  background-color: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.input-control:disabled {
+  background-color: var(--bg-alt);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.input-control.with-left-icon {
+  padding-left: 2.5rem;
+}
+
+.input-control.with-right-icon {
+  padding-right: 2.5rem;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.input-icon-left {
+  left: 0.85rem;
+}
+
+.input-icon-right {
+  right: 0.85rem;
+}
+
+.input-error-msg {
+  font-size: var(--font-size-xs);
+  color: var(--coral);
+  font-weight: 500;
+  margin-top: 0.125rem;
+}
+
+.input-helper-msg {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  margin-top: 0.125rem;
+}
+
+.has-error .input-control {
+  border-color: var(--coral);
+}
+
+.has-error .input-control:focus {
+  border-color: var(--coral);
+  box-shadow: 0 0 0 3px var(--coral-light);
+}

@@ -1,0 +1,113 @@
+.stat-card {
+  padding: 1.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(212, 239, 105, 0.2);
+}
+
+.stat-card-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.stat-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-title {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  margin-bottom: 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.stat-subtitle {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.stat-trend {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.35rem;
+}
+
+.stat-trend.positive {
+  color: var(--primary);
+}
+
+.stat-trend.negative {
+  color: var(--coral);
+}
+
+.trend-context {
+  color: var(--text-light);
+  font-weight: 400;
+}
+
+.stat-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+.scheme-primary {
+  background-color: rgba(212, 239, 105, 0.12);
+  color: var(--primary);
+  border-color: rgba(212, 239, 105, 0.25);
+}
+
+.scheme-secondary {
+  background-color: var(--secondary-light);
+  color: var(--secondary);
+  border-color: rgba(45, 212, 191, 0.25);
+}
+
+.scheme-warning {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.scheme-error {
+  background-color: var(--danger-bg);
+  color: var(--coral);
+  border-color: rgba(241, 140, 112, 0.25);
+}
+
+.scheme-info {
+  background-color: var(--info-bg);
+  color: var(--info);
+  border-color: rgba(56, 189, 248, 0.25);
+}
