@@ -9,7 +9,7 @@ export default function CustomerProfile() {
   const { currentUser } = useAuth();
 
   const [name, setName] = useState(currentUser?.name || 'Rohan Sharma');
-  const [email, setEmail] = useState(currentUser?.email || 'customer@homefix.demo');
+  const [email, setEmail] = useState(currentUser?.email || 'customer@homefix.com');
   const [phone, setPhone] = useState(currentUser?.phone || '+91 98711 22334');
   const [saved, setSaved] = useState(false);
 

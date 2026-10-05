@@ -16,10 +16,11 @@ import {
 import { DEMO_BOOKINGS } from '../../data/bookings';
 import { paymentApi, bookingApi } from '../../services/api';
 import Card from '../../components/common/Card';
-import Badge from '../../components/common/Badge';
+import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';
 import ErrorState from '../../components/common/ErrorState';
+import BookingTimeline from '../../components/booking/BookingTimeline';
 
 const STATUS_STEPS = [
   'Requested',
@@ -96,64 +97,37 @@ export default function BookingDetails() {
           <span>Back to All Bookings</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Badge status={booking.status} dot size="md">{booking.status}</Badge>
-          <Badge status={booking.paymentStatus === 'Paid' ? 'Paid' : 'Pending'} size="md">
-            Pay: {booking.paymentStatus}
-          </Badge>
+          <StatusBadge status={booking.status} size="md" />
+          <span className={`badge ${booking.paymentStatus === 'Paid' ? 'badge-success' : 'badge-warning'}`}>
+            Payment: {booking.paymentStatus}
+          </span>
         </div>
       </div>
 
       {/* Booking Header Card */}
       <Card className="p-6">
-        <div className="flex justify-between items-start flex-wrap gap-4 border-b border-[var(--line)] pb-4 mb-4">
+        <div className="flex justify-between items-start flex-wrap gap-4 border-b border-border pb-4 mb-4">
           <div>
-            <span className="text-xs font-mono font-bold text-[var(--primary)] bg-[rgba(212,239,105,0.1)] border border-[rgba(212,239,105,0.25)] px-2 py-1 rounded">
+            <span className="text-xs font-mono font-bold text-primary bg-surface-raised border border-champagne-dark px-2.5 py-1 rounded">
               {booking.id}
             </span>
-            <h1 className="text-2xl font-bold text-[var(--text)] mt-2">{booking.serviceName}</h1>
-            <p className="text-sm text-[var(--text-muted)] mt-1">{booking.problemTitle}</p>
+            <h1 className="text-2xl font-bold text-text-primary font-serif mt-2">{booking.serviceName}</h1>
+            <p className="text-sm text-muted mt-1">{booking.problemTitle}</p>
           </div>
 
           <div className="text-right">
-            <span className="text-xs text-[var(--text-muted)] uppercase font-semibold">Total Amount</span>
-            <div className="text-2xl font-extrabold text-[var(--primary)]">₹{booking.pricing.customerTotal}</div>
+            <span className="text-xs text-muted uppercase font-semibold">Total Amount</span>
+            <div className="text-2xl font-extrabold text-primary font-serif">₹{booking.pricing.customerTotal}</div>
           </div>
         </div>
 
-        {/* Status Lifecycle Stepper Tracker */}
-        {booking.status !== 'Cancelled' ? (
-          <div className="py-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">
-              Real-time Service Progress
-            </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
-              {STATUS_STEPS.map((step, idx) => {
-                const isPassed = currentStatusIndex >= idx;
-                const isCurrent = booking.status === step;
-                return (
-                  <div
-                    key={step}
-                    className={`p-2.5 rounded-lg border text-center text-xs transition-all ${
-                      isCurrent
-                        ? 'border-[var(--primary)] bg-[rgba(212,239,105,0.12)] text-[var(--primary)] font-bold shadow-sm'
-                        : isPassed
-                        ? 'border-[rgba(74,222,128,0.3)] bg-[rgba(74,222,128,0.08)] text-[var(--success-text)] font-medium'
-                        : 'border-[var(--line)] text-[var(--text-light)] bg-[var(--surface-raised)]'
-                    }`}
-                  >
-                    <div className="mb-1 text-base">{isPassed ? '✓' : idx + 1}</div>
-                    <div>{step}</div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <div className="p-3 bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--coral)] text-sm rounded-lg flex items-center gap-2">
-            <AlertTriangle size={18} />
-            <span>This booking has been cancelled.</span>
-          </div>
-        )}
+        {/* Status Lifecycle Timeline Tracker */}
+        <div className="py-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-muted mb-3">
+            Real-time Service Progress
+          </h4>
+          <BookingTimeline currentStatus={booking.status} />
+        </div>
       </Card>
 
       {/* Grid: Details & Pricing Breakdown */}

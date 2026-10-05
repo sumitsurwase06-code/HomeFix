@@ -30,26 +30,26 @@ export default function Contact() {
             <Card className="p-6">
               <Mail size={24} className="text-primary mb-2" />
               <h4 className="font-bold text-base mb-1">Email Us</h4>
-              <p className="text-xs text-muted mb-2">For platform support & project inquiries</p>
-              <a href="mailto:support@homefix.demo" className="text-sm font-semibold text-primary">
-                support@homefix.demo
+              <p className="text-xs text-muted mb-2">For platform support & business inquiries</p>
+              <a href="mailto:support@homefix.com" className="text-sm font-semibold text-primary">
+                support@homefix.com
               </a>
             </Card>
 
             <Card className="p-6">
-              <Phone size={24} className="text-secondary mb-2" />
+              <Phone size={24} className="text-primary mb-2" />
               <h4 className="font-bold text-base mb-1">Call Center</h4>
-              <p className="text-xs text-muted mb-2">Mon - Sat from 8am to 8pm</p>
+              <p className="text-xs text-muted mb-2">Mon - Sun from 7:00 AM to 10:00 PM</p>
               <span className="text-sm font-semibold text-text-primary">
                 +91 (800) 466-3349
               </span>
             </Card>
 
             <Card className="p-6">
-              <MapPin size={24} className="text-warning mb-2" />
-              <h4 className="font-bold text-base mb-1">Headquarters</h4>
+              <MapPin size={24} className="text-primary mb-2" />
+              <h4 className="font-bold text-base mb-1">Corporate HQ</h4>
               <p className="text-xs text-secondary leading-relaxed">
-                Academic Campus, Computer Science & Engineering Department, Greater Noida, India
+                HomeFix Technologies Ltd, Level 8, Prime Tech Hub, Bengaluru 560103, India
               </p>
             </Card>
           </div>

@@ -4,13 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 import Card from '../../components/common/Card';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
+import StatusBadge from '../../components/common/StatusBadge';
 
 export default function TechnicianProfile() {
   const { currentUser } = useAuth();
 
-  const [name, setName] = useState(currentUser?.name || 'Rajesh Kumar (Demo)');
-  const [email, setEmail] = useState(currentUser?.email || 'technician@homefix.demo');
+  const [name, setName] = useState(currentUser?.name || 'Rajesh Kumar');
+  const [email, setEmail] = useState(currentUser?.email || 'technician@homefix.com');
   const [phone, setPhone] = useState(currentUser?.phone || '+91 98765 43210');
   const [experience, setExperience] = useState('8 Years');
   const [skills, setSkills] = useState('Pipe Leakages, Drain Unclogging, Geyser Installation, Motor Pumps');
@@ -34,9 +34,7 @@ export default function TechnicianProfile() {
           <p className="page-subtitle">Manage your trade credentials, visiting fee, and dispatch area</p>
         </div>
 
-        <Badge status={verificationStatus} size="md" dot>
-          {verificationStatus} (Demo)
-        </Badge>
+        <StatusBadge status={verificationStatus} size="md" />
       </div>
 
       {verificationStatus === 'Pending' && (

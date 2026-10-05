@@ -14,7 +14,7 @@ import {
 import { DEMO_TECHNICIANS } from '../../data/technicians';
 import { adminApi } from '../../services/api';
 import Card from '../../components/common/Card';
-import Badge from '../../components/common/Badge';
+import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import Modal from '../../components/common/Modal';
@@ -152,7 +152,7 @@ export default function TechnicianVerification() {
                     </span>
                   </td>
                   <td className="py-4">
-                    <Badge status={tech.status} size="sm" dot>{tech.status}</Badge>
+                    <StatusBadge status={tech.status} size="sm" />
                   </td>
                   <td className="py-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">

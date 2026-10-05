@@ -4,15 +4,15 @@
   background-color: var(--bg);
 }
 
-/* Sidebar */
+/* Sidebar: Deep Emerald */
 .dashboard-sidebar {
-  width: var(--sidebar-width);
-  background-color: var(--surface);
-  color: var(--text-muted);
+  width: 270px;
+  background-color: var(--emerald-dark);
+  color: var(--champagne-light);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  border-right: 1px solid var(--line);
+  border-right: 1px solid rgba(248, 231, 201, 0.15);
   position: sticky;
   top: 0;
   height: 100vh;
@@ -21,53 +21,52 @@
 }
 
 .sidebar-brand-box {
-  height: var(--header-height);
+  height: 72px;
   padding: 0 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid rgba(248, 231, 201, 0.15);
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  color: var(--text);
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 800;
+  color: var(--champagne-light);
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
 }
 
 .sidebar-badge {
   font-size: 0.65rem;
-  padding: 0.2rem 0.5rem;
+  padding: 0.2rem 0.55rem;
   border-radius: var(--radius-full);
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .sidebar-badge.customer {
-  background-color: rgba(212, 239, 105, 0.12);
-  color: var(--primary);
-  border: 1px solid rgba(212, 239, 105, 0.3);
+  background-color: rgba(248, 231, 201, 0.2);
+  color: var(--champagne);
+  border: 1px solid rgba(248, 231, 201, 0.3);
 }
 
 .sidebar-badge.technician {
-  background-color: var(--secondary-light);
-  color: var(--secondary);
-  border: 1px solid rgba(45, 212, 191, 0.3);
+  background-color: var(--emerald-light);
+  color: var(--emerald-ink);
 }
 
 .sidebar-badge.admin {
-  background-color: var(--danger-bg);
-  color: var(--coral);
-  border: 1px solid var(--danger-border);
+  background-color: var(--champagne);
+  color: var(--emerald-dark);
 }
 
 .sidebar-nav-section {
   flex: 1 1 auto;
-  padding: 1.25rem 0.75rem;
+  padding: 1.25rem 0.85rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -77,66 +76,67 @@
 .sidebar-nav-title {
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--text-light);
+  color: var(--champagne-dark);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.5rem 0.75rem 0.25rem;
+  letter-spacing: 0.08em;
+  padding: 0.6rem 0.85rem 0.35rem;
 }
 
 .sidebar-nav-link {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: var(--radius-xs);
-  color: var(--text-muted);
-  font-size: var(--font-size-sm);
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--champagne-light);
+  font-size: 0.9rem;
   font-weight: 500;
   transition: all var(--transition-fast);
+  text-decoration: none;
 }
 
 .sidebar-nav-link:hover {
-  background-color: var(--surface-raised);
-  color: var(--text);
+  background-color: rgba(248, 231, 201, 0.12);
+  color: var(--white);
 }
 
 .sidebar-nav-link.active {
-  background-color: var(--primary);
-  color: var(--primary-ink);
+  background-color: var(--champagne);
+  color: var(--emerald-ink);
   font-weight: 700;
-  box-shadow: 0 2px 10px rgba(212, 239, 105, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-footer {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid var(--line);
-  background-color: var(--surface-raised);
+  padding: 1.25rem 1.25rem;
+  border-top: 1px solid rgba(248, 231, 201, 0.15);
+  background-color: rgba(0, 0, 0, 0.15);
 }
 
 .sidebar-user-brief {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .sidebar-user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid var(--line);
+  border: 2px solid var(--champagne-border);
 }
 
 .sidebar-user-name {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
-  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--white);
 }
 
 .sidebar-user-role {
-  font-size: 0.68rem;
-  color: var(--text-muted);
+  font-size: 0.7rem;
+  color: var(--champagne);
   text-transform: capitalize;
 }
 
@@ -144,17 +144,22 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--coral);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-  padding: 0.4rem 0.5rem;
-  border-radius: var(--radius-xs);
+  color: var(--champagne-dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
   width: 100%;
+  background: transparent;
+  border: 1px solid rgba(248, 231, 201, 0.2);
+  cursor: pointer;
 }
 
 .sidebar-logout-btn:hover {
   background-color: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger-text);
 }
 
 /* Main Dashboard Area */
@@ -169,11 +174,9 @@
 
 /* Dashboard Top Header */
 .dashboard-topbar {
-  height: var(--header-height);
-  background-color: rgba(23, 30, 26, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line);
+  height: 72px;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -181,6 +184,7 @@
   position: sticky;
   top: 0;
   z-index: 90;
+  box-shadow: var(--shadow-xs);
 }
 
 .topbar-left {
@@ -191,15 +195,18 @@
 
 .mobile-sidebar-toggle {
   display: none;
-  color: var(--text);
+  color: var(--emerald-ink);
+  background: transparent;
+  border: none;
+  cursor: pointer;
   padding: 0.35rem;
 }
 
 .topbar-page-title {
-  font-family: var(--font-display);
-  font-size: var(--font-size-lg);
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
   font-weight: 700;
-  color: var(--text);
+  color: var(--emerald-ink);
 }
 
 .topbar-right {
@@ -212,43 +219,73 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: var(--surface-raised);
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
+  background-color: var(--champagne-light);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--champagne-border);
 }
 
 .topbar-role-label {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--emerald-ink);
   text-transform: uppercase;
 }
 
 .role-tag-btn {
   font-size: 0.72rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-xs);
-  color: var(--text-secondary);
-  font-weight: 500;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  color: var(--emerald-ink);
+  font-weight: 600;
   transition: all var(--transition-fast);
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
 .role-tag-btn:hover {
-  color: var(--text);
+  background-color: var(--champagne);
 }
 
 .role-tag-btn.active {
-  background-color: var(--primary);
-  color: var(--primary-ink);
-  font-weight: 700;
+  background-color: var(--emerald-ink);
+  color: var(--champagne-light);
 }
 
 /* Dashboard Content Container */
 .dashboard-content {
   flex: 1 1 auto;
-  padding: 2rem;
+  padding: 2.25rem;
   background-color: var(--bg);
+}
+
+/* Page wrapper inside content */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--emerald-ink);
+}
+
+.page-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
 /* Responsive Overrides */

@@ -15,10 +15,11 @@ import {
 import { DEMO_BOOKINGS } from '../../data/bookings';
 import { bookingApi } from '../../services/api';
 import Card from '../../components/common/Card';
-import Badge from '../../components/common/Badge';
+import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
 import ErrorState from '../../components/common/ErrorState';
+import BookingTimeline from '../../components/booking/BookingTimeline';
 
 const STATUS_PROGRESSION = [
   'Requested',
@@ -91,11 +92,11 @@ export default function JobDetails() {
           <ArrowLeft size={16} />
           <span>Back to Assigned Jobs</span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Badge status={job.status} dot>{job.status}</Badge>
-          <Badge status={job.paymentStatus === 'Paid' ? 'Paid' : 'Pending'}>
-            Pay: {job.paymentStatus}
-          </Badge>
+        <div className="flex items-center gap-2">
+          <StatusBadge status={job.status} size="md" />
+          <span className={`badge ${job.paymentStatus === 'Paid' ? 'badge-success' : 'badge-warning'}`}>
+            Payment: {job.paymentStatus}
+          </span>
         </div>
       </div>
 
@@ -107,20 +108,25 @@ export default function JobDetails() {
       )}
 
       {/* Main Job Card */}
-      <Card className="p-6" style={{ padding: '1.75rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', paddingBottom: '1rem', borderBottom: '1px solid var(--line)', marginBottom: '1.25rem' }}>
+      <Card className="p-6">
+        <div className="flex justify-between items-start flex-wrap gap-4 border-b border-border pb-4 mb-4">
           <div>
-            <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', backgroundColor: 'rgba(212, 239, 105, 0.1)', padding: '0.15rem 0.5rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(212, 239, 105, 0.25)' }}>
+            <span className="text-xs font-mono font-bold text-primary bg-surface-raised border border-champagne-dark px-2.5 py-1 rounded">
               {job.id}
             </span>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '1.5rem', fontWeight: 700, color: 'var(--text)', marginTop: '0.35rem' }}>{job.serviceName}</h1>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{job.problemTitle}</p>
+            <h1 className="text-2xl font-bold text-text-primary font-serif mt-2">{job.serviceName}</h1>
+            <p className="text-sm text-muted mt-1">{job.problemTitle}</p>
           </div>
 
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Current Total</span>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary)' }}>₹{calculatedTotal}</div>
+          <div className="text-right">
+            <span className="text-xs text-muted uppercase font-semibold">Current Total</span>
+            <div className="text-2xl font-extrabold text-primary font-serif">₹{calculatedTotal}</div>
           </div>
+        </div>
+
+        <div className="py-2 mb-6">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-muted mb-3">Service Lifecycle Progress</h4>
+          <BookingTimeline currentStatus={job.status} />
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>

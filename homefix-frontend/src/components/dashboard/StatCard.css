@@ -1,8 +1,8 @@
 .stat-card {
   padding: 1.5rem;
-  background-color: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
+  background-color: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
 }
@@ -10,7 +10,7 @@
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  border-color: rgba(212, 239, 105, 0.2);
+  border-color: rgba(6, 78, 59, 0.2);
 }
 
 .stat-card-inner {
@@ -26,26 +26,26 @@
 }
 
 .stat-title {
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-size: 0.775rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: var(--text-muted);
   margin-bottom: 0.35rem;
 }
 
 .stat-value {
-  font-family: var(--font-display);
-  font-size: 1.85rem;
+  font-family: var(--font-serif);
+  font-size: 2rem;
   font-weight: 800;
-  color: var(--text);
+  color: var(--emerald-ink);
   line-height: 1.1;
   margin-bottom: 0.35rem;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .stat-subtitle {
-  font-size: var(--font-size-xs);
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
@@ -59,11 +59,11 @@
 }
 
 .stat-trend.positive {
-  color: var(--primary);
+  color: var(--emerald-medium);
 }
 
 .stat-trend.negative {
-  color: var(--coral);
+  color: var(--danger-text);
 }
 
 .trend-context {
@@ -72,9 +72,9 @@
 }
 
 .stat-icon-wrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,31 +83,31 @@
 }
 
 .scheme-primary {
-  background-color: rgba(212, 239, 105, 0.12);
-  color: var(--primary);
-  border-color: rgba(212, 239, 105, 0.25);
+  background-color: var(--emerald-light);
+  color: var(--emerald-ink);
+  border-color: rgba(6, 78, 59, 0.15);
 }
 
 .scheme-secondary {
-  background-color: var(--secondary-light);
-  color: var(--secondary);
-  border-color: rgba(45, 212, 191, 0.25);
+  background-color: var(--champagne-light);
+  color: var(--emerald-ink);
+  border-color: var(--champagne-border);
 }
 
 .scheme-warning {
-  background-color: var(--warning-bg);
-  color: var(--warning);
-  border-color: rgba(251, 191, 36, 0.25);
+  background-color: #FEF3C7;
+  color: #92400E;
+  border-color: rgba(146, 64, 14, 0.2);
 }
 
 .scheme-error {
   background-color: var(--danger-bg);
-  color: var(--coral);
-  border-color: rgba(241, 140, 112, 0.25);
+  color: var(--danger-text);
+  border-color: var(--danger-border);
 }
 
 .scheme-info {
   background-color: var(--info-bg);
-  color: var(--info);
-  border-color: rgba(56, 189, 248, 0.25);
+  color: var(--info-text);
+  border-color: var(--info-border);
 }

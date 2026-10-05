@@ -14,6 +14,7 @@ import Technicians from '../pages/public/Technicians';
 import TechnicianDetails from '../pages/public/TechnicianDetails';
 import About from '../pages/public/About';
 import Contact from '../pages/public/Contact';
+import NotFound from '../pages/public/NotFound';
 
 // Auth Pages
 import Login from '../pages/auth/Login';
@@ -137,8 +138,10 @@ export default function AppRoutes() {
         <Route path="audit-logs" element={<AuditLogs />} />
       </Route>
 
-      {/* Fallback Catch-all */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Fallback 404 Catch-all */}
+      <Route element={<PublicLayout />}>
+        <Route path="*" element={<NotFound />} />
+      </Route>
     </Routes>
   );
 }

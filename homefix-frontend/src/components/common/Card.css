@@ -1,23 +1,23 @@
 .card {
-  background-color: var(--surface);
-  border-radius: var(--radius-md);
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--border-light);
 }
 
 .card-bordered {
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
 }
 
 .card-hover:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(212, 239, 105, 0.25);
-  background-color: var(--surface-raised);
+  border-color: rgba(6, 78, 59, 0.25);
 }
 
 .card-clickable {
@@ -25,7 +25,7 @@
 }
 
 .card-clickable:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2px solid var(--emerald-ink);
 }
 
 /* Padding variants */
@@ -42,14 +42,14 @@
 }
 
 .card-padding-lg {
-  padding: 2rem;
+  padding: 2.25rem;
 }
 
 /* Sub-components */
 .card-header {
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -60,9 +60,9 @@
 }
 
 .card-footer {
-  padding-top: 1rem;
-  margin-top: 1rem;
-  border-top: 1px solid var(--border-light);
+  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;

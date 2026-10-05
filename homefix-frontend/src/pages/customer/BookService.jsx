@@ -21,6 +21,7 @@ import {
 import { SERVICE_CATEGORIES } from '../../data/services';
 import { DEMO_TECHNICIANS } from '../../data/technicians';
 import { bookingApi } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 import Card from '../../components/common/Card';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
@@ -39,6 +40,7 @@ const STEPS = [
 export default function BookService() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const toast = useToast();
 
   // Wizard State
   const [currentStep, setCurrentStep] = useState(1);
@@ -174,6 +176,7 @@ export default function BookService() {
 
       const res = await bookingApi.create(payload);
       setConfirmedBooking(res.data);
+      toast.success('Your service request has been registered.', 'Booking Confirmed');
       setCurrentStep(7); // Jump to Confirmation Step
     } catch (err) {
       setStepError('Failed to create booking. Please try again.');
@@ -185,7 +188,7 @@ export default function BookService() {
   return (
     <div className="max-w-4xl mx-auto py-2">
       {/* Wizard Progress Stepper */}
-      <div className="bg-[var(--surface)] p-4 rounded-xl border border-[var(--line)] shadow-sm mb-6 overflow-x-auto">
+      <div className="bg-[var(--white)] p-4 rounded-xl border border-[var(--border-light)] shadow-sm mb-6 overflow-x-auto">
         <div className="flex items-center justify-between min-w-[620px] gap-2">
           {STEPS.map((step) => {
             const isCompleted = currentStep > step.id;
@@ -193,25 +196,25 @@ export default function BookService() {
             return (
               <div key={step.id} className="flex items-center gap-2">
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     isCompleted
-                      ? 'bg-[var(--success)] text-[#101512]'
+                      ? 'bg-[var(--emerald-ink)] text-[var(--champagne-light)]'
                       : isCurrent
-                      ? 'bg-[var(--primary)] text-[#101512] ring-4 ring-[rgba(212,239,105,0.2)]'
-                      : 'bg-[var(--surface-raised)] text-[var(--text-muted)] border border-[var(--line)]'
+                      ? 'bg-[var(--emerald-ink)] text-[var(--champagne-light)] ring-4 ring-[rgba(6,78,59,0.18)]'
+                      : 'bg-[var(--champagne-light)] text-[var(--text-muted)] border border-[var(--champagne-border)]'
                   }`}
                 >
                   {isCompleted ? '✓' : step.id}
                 </div>
                 <span
                   className={`text-xs font-semibold whitespace-nowrap ${
-                    isCurrent ? 'text-[var(--primary)]' : isCompleted ? 'text-[var(--text)]' : 'text-[var(--text-muted)]'
+                    isCurrent ? 'text-[var(--emerald-ink)] font-bold' : isCompleted ? 'text-[var(--text)]' : 'text-[var(--text-muted)]'
                   }`}
                 >
                   {step.title}
                 </span>
                 {step.id !== STEPS.length && (
-                  <div className={`h-0.5 w-6 sm:w-10 ${isCompleted ? 'bg-[var(--success)]' : 'bg-[var(--line)]'}`} />
+                  <div className={`h-0.5 w-6 sm:w-10 ${isCompleted ? 'bg-[var(--emerald-ink)]' : 'bg-[var(--champagne-border)]'}`} />
                 )}
               </div>
             );
@@ -220,7 +223,7 @@ export default function BookService() {
       </div>
 
       {stepError && (
-        <div className="bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--coral)] p-3 rounded-lg text-sm flex items-center gap-2 mb-4" role="alert">
+        <div className="bg-[var(--danger-bg)] border border-[var(--danger-border)] text-[var(--danger-text)] p-3 rounded-lg text-sm flex items-center gap-2 mb-4" role="alert">
           <AlertCircle size={16} />
           <span>{stepError}</span>
         </div>
@@ -229,7 +232,7 @@ export default function BookService() {
       {/* STEP 1: Select Service Category */}
       {currentStep === 1 && (
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-[var(--text)] mb-1">Step 1: Select Service Category</h2>
+          <h2 className="text-xl font-bold font-serif-heading text-[var(--emerald-ink)] mb-1">Step 1: Select Service Category</h2>
           <p className="text-sm text-[var(--text-muted)] mb-6">Choose the household repair or maintenance trade required.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -241,16 +244,16 @@ export default function BookService() {
                   onClick={() => setSelectedServiceId(cat.id)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${
                     isSelected
-                      ? 'border-[var(--primary)] bg-[rgba(212,239,105,0.08)] shadow-sm'
-                      : 'border-[var(--line)] hover:border-[rgba(241,242,233,0.2)] bg-[var(--surface-raised)]'
+                      ? 'border-[var(--emerald-ink)] bg-[var(--champagne-light)] shadow-sm'
+                      : 'border-[var(--border-light)] hover:border-[var(--emerald-ink)] bg-[var(--white)]'
                   }`}
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <span className="font-bold text-base text-[var(--text)]">{cat.name}</span>
-                    {isSelected && <span className="text-[var(--primary)] text-sm font-bold">✓</span>}
+                    <span className="font-bold text-base text-[var(--emerald-ink)]">{cat.name}</span>
+                    {isSelected && <span className="text-[var(--emerald-ink)] text-sm font-bold">✓</span>}
                   </div>
                   <p className="text-xs text-[var(--text-muted)] mb-3">{cat.shortDesc}</p>
-                  <div className="text-xs font-semibold text-[var(--primary)]">
+                  <div className="text-xs font-semibold text-[var(--emerald-ink)]">
                     Est. starts ₹{cat.startingPrice}
                   </div>
                 </div>

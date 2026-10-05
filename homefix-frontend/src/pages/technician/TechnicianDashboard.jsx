@@ -18,10 +18,11 @@ import { DEMO_BOOKINGS } from '../../data/bookings';
 import StatCard from '../../components/dashboard/StatCard';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
+import StatusBadge from '../../components/common/StatusBadge';
 
 export default function TechnicianDashboard() {
   const { currentUser } = useAuth();
+  const [isAvailable, setIsAvailable] = React.useState(true);
 
   const isVerified = currentUser?.verificationStatus !== 'Pending';
   const newRequests = DEMO_BOOKINGS.filter((b) => b.status === 'Requested');
@@ -30,36 +31,61 @@ export default function TechnicianDashboard() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Header Banner with Availability Toggle */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-6 rounded-2xl bg-primary text-white shadow-lg border border-emerald-dark">
+        <div>
+          <span className="text-xs uppercase tracking-wider text-champagne font-bold">Technician Partner Hub</span>
+          <h1 className="text-3xl font-bold mt-1 text-white font-serif">Good day, {currentUser?.name || 'Partner'}</h1>
+          <p className="text-sm text-champagne-light mt-1">
+            Dispatch queue, active assigned jobs, and weekly earnings overview.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 bg-emerald-dark p-3 rounded-xl border border-emerald-medium">
+          <span className={`w-3 h-3 rounded-full ${isAvailable ? 'bg-success' : 'bg-muted'}`}></span>
+          <span className="text-xs font-bold text-champagne-light">
+            Status: {isAvailable ? 'Available for Dispatch' : 'Offline / On Break'}
+          </span>
+          <button
+            type="button"
+            className={`btn btn-xs ${isAvailable ? 'btn-secondary' : 'btn-outline text-white'}`}
+            onClick={() => setIsAvailable(!isAvailable)}
+          >
+            {isAvailable ? 'Go Offline' : 'Go Online'}
+          </button>
+        </div>
+      </div>
+
       {/* Top Verification Status Banner */}
       {!isVerified ? (
-        <div className="p-4 rounded-xl bg-[rgba(251,191,36,0.1)] border border-[rgba(251,191,36,0.3)] text-[#fde68a] flex items-center justify-between flex-wrap gap-4 shadow-sm">
+        <div className="p-4 rounded-xl bg-surface-raised border border-champagne-dark text-text-primary flex items-center justify-between flex-wrap gap-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <AlertTriangle size={24} className="text-[var(--warning)] flex-shrink-0" />
+            <AlertTriangle size={24} className="text-warning shrink-0" />
             <div>
-              <h3 className="font-bold text-sm">Account Status: Pending Admin Verification</h3>
-              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
-                Your submitted documents and skill certifications are currently under review by our operations supervisor. You will be publicly bookable once approved.
+              <h3 className="font-bold text-sm">Account Status: Pending Document Verification</h3>
+              <p className="text-xs text-muted mt-0.5">
+                Your trade license and identity documents are currently under review by our operations team. You will be publicly bookable once approved.
               </p>
             </div>
           </div>
           <Link to="/technician/profile">
-            <Button variant="outline" size="sm" className="border-[rgba(251,191,36,0.4)] text-[#fde68a]">
-              Check Documents
+            <Button variant="outline" size="sm">
+              Review Documents
             </Button>
           </Link>
         </div>
       ) : (
-        <div className="p-4 rounded-xl bg-[rgba(212,239,105,0.1)] border border-[rgba(212,239,105,0.3)] text-[var(--text)] flex items-center justify-between flex-wrap gap-4 shadow-sm">
+        <div className="p-4 rounded-xl bg-surface-raised border border-champagne-dark text-text-primary flex items-center justify-between flex-wrap gap-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <ShieldCheck size={24} className="text-[var(--primary)] flex-shrink-0" />
+            <ShieldCheck size={24} className="text-primary shrink-0" />
             <div>
               <h3 className="font-bold text-sm">Account Status: Verified Service Partner (Active)</h3>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                You are live on the customer marketplace. Ready to receive dispatch requests in your designated area.
+              <p className="text-xs text-muted mt-0.5">
+                You are active on the customer marketplace and receiving dispatch leads in your service coverage areas.
               </p>
             </div>
           </div>
-          <Badge status="Verified" dot size="md">Online & Receiving Leads</Badge>
+          <StatusBadge status="VERIFIED" size="md" />
         </div>
       )}
 

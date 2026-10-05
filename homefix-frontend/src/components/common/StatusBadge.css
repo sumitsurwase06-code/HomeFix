@@ -1,0 +1,89 @@
+/* ==========================================================================
+   StatusBadge Component Styles
+   ========================================================================== */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  border-radius: var(--radius-full, 9999px);
+  text-transform: capitalize;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+
+.status-badge-sm {
+  font-size: 0.75rem;
+  padding: 3px 10px;
+}
+
+.status-badge-md {
+  font-size: 0.8125rem;
+  padding: 5px 14px;
+}
+
+.status-badge-lg {
+  font-size: 0.875rem;
+  padding: 6px 16px;
+}
+
+.status-badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Status Variants */
+
+/* Pending / Requested — Warm Champagne */
+.status-pending {
+  background-color: var(--champagne-light, #FFF7E8);
+  color: var(--text-primary, #10251E);
+  border: 1px solid var(--champagne-dark, #EBD5AD);
+}
+
+/* Accepted / Scheduled — Soft Light Emerald */
+.status-accepted,
+.status-scheduled {
+  background-color: var(--emerald-light, #DCEFE7);
+  color: var(--emerald-ink, #064E3B);
+  border: 1px solid rgba(6, 78, 59, 0.2);
+}
+
+/* On the Way / In Progress — Active Medium Emerald */
+.status-ontheway,
+.status-inprogress {
+  background-color: #E2F5ED;
+  color: #0B6B50;
+  border: 1px solid #A7E0CA;
+}
+
+/* Completed / Approved — Deep Emerald Ink with Light Text */
+.status-completed,
+.status-approved {
+  background-color: var(--emerald-ink, #064E3B);
+  color: var(--champagne-light, #FFF7E8);
+  border: 1px solid var(--emerald-dark, #033C2E);
+}
+
+/* Cancelled / Rejected — Subtle Restrained Crimson */
+.status-cancelled {
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+/* Warning / Under Review */
+.status-warning {
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+.status-default {
+  background-color: var(--bg-alt, #F4ECE0);
+  color: var(--text-secondary, #244237);
+  border: 1px solid var(--border, rgba(6, 78, 59, 0.15));
+}

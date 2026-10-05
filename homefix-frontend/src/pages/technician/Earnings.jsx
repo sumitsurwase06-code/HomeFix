@@ -15,13 +15,8 @@ export default function Earnings() {
         </div>
 
         <Button variant="outline" size="sm" leftIcon={<Download size={14} />}>
-          Download Statement (Demo)
+          Download Statement
         </Button>
-      </div>
-
-      <div className="demo-banner" style={{ borderRadius: 'var(--radius-md)' }}>
-        <AlertCircle size={15} />
-        <span>Financial figures shown below are simulated demo metrics for evaluation.</span>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem' }}>

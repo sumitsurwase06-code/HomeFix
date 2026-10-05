@@ -13,67 +13,67 @@
 
 /* Sizes */
 .badge-sm {
-  padding: 0.2rem 0.5rem;
-  font-size: 0.65rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.68rem;
 }
 
 .badge-md {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.72rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
 }
 
 /* Dot indicator */
 .badge-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: currentColor;
 }
 
-/* Neutral */
+/* Neutral / Default (Champagne Soft) */
 .badge-default,
 .badge-neutral {
-  background-color: var(--surface-soft);
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
+  background-color: var(--champagne-light);
+  color: var(--emerald-ink);
+  border: 1px solid var(--champagne-border);
 }
 
-/* Primary (Lime Accent) */
+/* Primary (Emerald Ink) */
 .badge-primary {
-  background-color: rgba(212, 239, 105, 0.12);
-  color: var(--primary);
-  border: 1px solid rgba(212, 239, 105, 0.3);
+  background-color: var(--emerald-ink);
+  color: var(--champagne-light);
+  border: 1px solid var(--emerald-ink);
 }
 
-/* Secondary (Teal) */
+/* Secondary (Champagne Gold) */
 .badge-secondary {
-  background-color: var(--secondary-light);
-  color: var(--secondary);
-  border: 1px solid rgba(45, 212, 191, 0.3);
+  background-color: var(--champagne);
+  color: var(--emerald-ink);
+  border: 1px solid var(--champagne-border);
 }
 
-/* Success (Vibrant Green) */
+/* Success / Confirmed / Completed / Verified */
 .badge-success {
-  background-color: var(--success-bg);
-  color: var(--success-text);
-  border: 1px solid var(--success-border);
+  background-color: var(--emerald-light);
+  color: var(--emerald-ink);
+  border: 1px solid rgba(6, 78, 59, 0.2);
 }
 
-/* Warning (Amber) */
+/* Warning / Pending / Requested */
 .badge-warning {
-  background-color: var(--warning-bg);
-  color: var(--warning-text);
-  border: 1px solid var(--warning-border);
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid rgba(146, 64, 14, 0.2);
 }
 
-/* Error / Danger / Coral */
+/* Error / Danger / Cancelled / Rejected */
 .badge-error {
   background-color: var(--danger-bg);
   color: var(--danger-text);
   border: 1px solid var(--danger-border);
 }
 
-/* Info (Sky Blue) */
+/* Info (Muted Emerald / Cyan) */
 .badge-info {
   background-color: var(--info-bg);
   color: var(--info-text);

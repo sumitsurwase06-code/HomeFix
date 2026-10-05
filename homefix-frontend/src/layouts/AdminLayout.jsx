@@ -17,6 +17,7 @@ import {
   Home
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import DevModeBar from '../components/common/DevModeBar';
 import './DashboardLayout.css';
 
 export default function AdminLayout() {
@@ -162,32 +163,6 @@ export default function AdminLayout() {
           </div>
 
           <div className="topbar-right">
-            {/* Quick Demo Persona Switcher */}
-            <div className="topbar-role-selector" title="Switch Demo View for Viva/Testing">
-              <span className="topbar-role-label">Viva View:</span>
-              <button
-                type="button"
-                className="role-tag-btn"
-                onClick={() => { switchDemoRole('customer'); navigate('/customer/dashboard'); }}
-              >
-                Customer
-              </button>
-              <button
-                type="button"
-                className="role-tag-btn"
-                onClick={() => { switchDemoRole('technician'); navigate('/technician/dashboard'); }}
-              >
-                Technician
-              </button>
-              <button
-                type="button"
-                className="role-tag-btn active"
-                onClick={() => switchDemoRole('admin')}
-              >
-                Admin
-              </button>
-            </div>
-
             <Link to="/" className="btn btn-outline btn-sm" title="Back to Public Site">
               <Home size={16} />
               <span>Public Site</span>
@@ -200,6 +175,7 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+      <DevModeBar />
     </div>
   );
 }

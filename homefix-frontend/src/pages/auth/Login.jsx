@@ -66,16 +66,8 @@ export default function Login() {
           <p className="auth-subtitle">Sign in to manage your household bookings or technician dashboard</p>
         </div>
 
-        {/* Demo Disclaimer */}
-        <div className="auth-demo-notice">
-          <AlertCircle size={15} />
-          <span>
-            <strong>Evaluation Mode:</strong> Click below to prefill demo personas:
-          </span>
-        </div>
-
-        {/* 1-Click Persona Pickers */}
-        <div className="demo-persona-grid">
+        {/* Quick Test Persona Selector */}
+        <div className="demo-persona-grid mb-4">
           {DEMO_USERS.map((u) => (
             <button
               key={u.id}

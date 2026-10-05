@@ -1,0 +1,119 @@
+/* ==========================================================================
+   Toast Notification Styling — Emerald & Champagne Tone
+   ========================================================================== */
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 420px;
+  width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+.toast-card {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background-color: var(--surface, #FFFFFF);
+  border-radius: var(--radius-md, 16px);
+  box-shadow: 0 12px 32px rgba(6, 78, 59, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border, rgba(6, 78, 59, 0.15));
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast-card.animate-slide-in {
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.toast-icon-wrapper {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.toast-icon.success {
+  color: var(--success, #16A34A);
+}
+
+.toast-icon.error {
+  color: var(--danger, #DC2626);
+}
+
+.toast-icon.warning {
+  color: var(--warning, #D97706);
+}
+
+.toast-icon.info {
+  color: var(--emerald-ink, #064E3B);
+}
+
+.toast-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary, #10251E);
+  margin-bottom: 2px;
+}
+
+.toast-message {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #244237);
+  line-height: 1.45;
+}
+
+.toast-close-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted, #5F6F68);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-close-btn:hover {
+  background-color: var(--champagne-light, #FFF7E8);
+  color: var(--emerald-ink, #064E3B);
+}
+
+/* Specific Variant Accents */
+.toast-success {
+  border-left: 4px solid var(--success, #16A34A);
+}
+
+.toast-error {
+  border-left: 4px solid var(--danger, #DC2626);
+}
+
+.toast-warning {
+  border-left: 4px solid var(--warning, #D97706);
+}
+
+.toast-info {
+  border-left: 4px solid var(--emerald-ink, #064E3B);
+}

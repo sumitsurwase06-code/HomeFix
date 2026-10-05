@@ -33,24 +33,24 @@ export default function CustomerDashboard() {
   return (
     <div className="flex flex-col gap-6">
       {/* Welcome Banner */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-6 rounded-xl bg-gradient-to-r from-[#171e1a] to-[#202923] border border-[var(--line)] text-[var(--text)] shadow-lg">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-8 rounded-2xl bg-primary text-white shadow-lg border border-emerald-dark">
         <div>
-          <span className="text-xs uppercase tracking-wider text-[var(--primary)] font-bold">Customer Control Center</span>
-          <h1 className="text-2xl font-bold mt-1 text-[var(--text)]">Welcome back, {currentUser?.name || 'Customer'}!</h1>
-          <p className="text-sm text-[var(--text-muted)] mt-1">
-            Need household repairs today? Book verified local specialists with transparent pricing.
+          <span className="text-xs uppercase tracking-wider text-champagne font-bold">Customer Control Center</span>
+          <h1 className="text-3xl font-bold mt-1 text-white font-serif">Good day, {currentUser?.name || 'Customer'}</h1>
+          <p className="text-sm text-champagne-light mt-1 max-w-xl">
+            What can we help you fix today? Connect with verified specialists for repairs, maintenance, and installations.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link to="/customer/book">
-            <Button variant="primary" size="md" rightIcon={<CalendarPlus size={16} />}>
+            <Button variant="secondary" size="md" rightIcon={<CalendarPlus size={16} />}>
               Book a Service
             </Button>
           </Link>
           <Link to="/customer/technicians">
-            <Button variant="outline" size="md">
-              Find Expert
+            <Button variant="outline" size="md" className="border-champagne text-champagne hover:bg-champagne hover:text-emerald-ink">
+              Find Specialist
             </Button>
           </Link>
         </div>

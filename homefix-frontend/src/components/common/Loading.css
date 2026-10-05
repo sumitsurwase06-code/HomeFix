@@ -11,16 +11,16 @@
 .loading-fullpage {
   position: fixed;
   inset: 0;
-  background-color: rgba(16, 21, 18, 0.9);
-  backdrop-filter: blur(6px);
+  background-color: rgba(251, 246, 237, 0.92);
+  backdrop-filter: blur(8px);
   z-index: 2000;
 }
 
 .loading-spinner {
   border-radius: 50%;
   border-style: solid;
-  border-color: var(--line);
-  border-top-color: var(--primary);
+  border-color: var(--champagne-border);
+  border-top-color: var(--emerald-ink);
   animation: spinner-rotate 0.8s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
 }
 
@@ -43,7 +43,7 @@
 }
 
 .loading-message {
-  font-size: var(--font-size-sm);
+  font-size: 0.9rem;
   color: var(--text-muted);
   font-weight: 500;
 }
@@ -58,12 +58,13 @@
 .skeleton-loader {
   background: linear-gradient(
     90deg,
-    #171e1a 25%,
-    #252f29 37%,
-    #171e1a 63%
+    #FFF7E8 25%,
+    #F4EAD8 37%,
+    #FFF7E8 63%
   );
   background-size: 400% 100%;
   animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: var(--radius-sm);
 }
 
 @keyframes skeleton-shimmer {
