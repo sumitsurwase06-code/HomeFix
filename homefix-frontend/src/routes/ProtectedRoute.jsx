@@ -4,8 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import Loading from '../components/common/Loading';
 
 /**
- * Route protection wrapper.
- * Currently uses mock AuthContext state; ready to be backed by Spring Security tokens.
+ * Strict role-based route guard.
+ * Validates authenticated session and authorized role for the requested portal.
  */
 export default function ProtectedRoute({ children, allowedRoles = [] }) {
   const { isAuthenticated, userRole, loading } = useAuth();
@@ -15,14 +15,23 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     return <Loading fullPage message="Authenticating session..." />;
   }
 
+  // If unauthenticated, redirect to login with reference to attempted destination
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
-    // If logged in user doesn't have the appropriate role, redirect to their corresponding dashboard
-    if (userRole === 'admin') return <Navigate to="/admin/dashboard" replace />;
-    if (userRole === 'technician') return <Navigate to="/technician/dashboard" replace />;
+  // Normalize roles to lowercase
+  const normalizedAllowed = allowedRoles.map((r) => r.toLowerCase());
+  const normalizedUserRole = userRole?.toLowerCase();
+
+  // If user role is not authorized for this specific portal, redirect to their own dashboard
+  if (normalizedAllowed.length > 0 && (!normalizedUserRole || !normalizedAllowed.includes(normalizedUserRole))) {
+    if (normalizedUserRole === 'admin') {
+      return <Navigate to="/admin/dashboard" replace />;
+    }
+    if (normalizedUserRole === 'technician') {
+      return <Navigate to="/technician/dashboard" replace />;
+    }
     return <Navigate to="/customer/dashboard" replace />;
   }
 

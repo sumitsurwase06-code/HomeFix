@@ -1,0 +1,836 @@
+/* ==========================================================================
+   Customer Dashboard - Premium, Minimal, Interactive UI
+   HomeFix Brand: Emerald Ink (#064E3B) & Champagne (#F8E7C9)
+   ========================================================================== */
+
+.cust-dashboard-root {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --------------------------------------------------------------------------
+   1. Compact Welcome Header
+   -------------------------------------------------------------------------- */
+.cust-welcome-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(6, 78, 59, 0.08);
+}
+
+.cust-welcome-text h1 {
+  font-family: var(--font-primary);
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--emerald-ink, #064E3B);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.cust-welcome-text p {
+  font-size: 0.875rem;
+  color: #64748B;
+  margin: 0.2rem 0 0 0;
+}
+
+.cust-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  padding: 0.35rem 0.85rem 0.35rem 0.45rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  color: #1E293B;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cust-profile-pill:hover {
+  border-color: #064E3B;
+  background-color: #F8FAF8;
+  color: #064E3B;
+  transform: translateY(-1px);
+}
+
+.cust-profile-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #064E3B;
+}
+
+/* --------------------------------------------------------------------------
+   2. Summary Metric Cards
+   -------------------------------------------------------------------------- */
+.cust-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.cust-metric-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.cust-metric-card:hover {
+  border-color: #064E3B;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(6, 78, 59, 0.08);
+}
+
+.cust-metric-card.active-theme {
+  border-left: 4px solid #059669;
+}
+
+.cust-metric-card.upcoming-theme {
+  border-left: 4px solid #0284C7;
+}
+
+.cust-metric-card.completed-theme {
+  border-left: 4px solid #064E3B;
+}
+
+.cust-metric-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.cust-metric-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cust-metric-count {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0F172A;
+  font-family: var(--font-primary);
+  line-height: 1.2;
+  margin-top: 0.15rem;
+}
+
+.cust-metric-hint {
+  font-size: 0.72rem;
+  color: #064E3B;
+  font-weight: 600;
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.cust-metric-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cust-metric-icon-wrap.emerald {
+  background-color: #ECFDF5;
+  color: #059669;
+}
+
+.cust-metric-icon-wrap.blue {
+  background-color: #F0F9FF;
+  color: #0284C7;
+}
+
+.cust-metric-icon-wrap.champagne {
+  background-color: #F8E7C9;
+  color: #064E3B;
+}
+
+/* --------------------------------------------------------------------------
+   3. Featured "Next Appointment / Active Booking" Card
+   -------------------------------------------------------------------------- */
+.cust-featured-card {
+  background: linear-gradient(145deg, #FFFFFF 0%, #FAFCF9 100%);
+  border: 1.5px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.cust-featured-card.in-progress-border {
+  border-color: #10B981;
+  background: linear-gradient(145deg, #FFFFFF 0%, #F0FDF4 100%);
+}
+
+.cust-featured-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid #EEF2F6;
+  margin-bottom: 1rem;
+}
+
+.cust-featured-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cust-featured-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  background-color: #064E3B;
+  color: #F8E7C9;
+}
+
+.cust-featured-tag.live-pulse {
+  background-color: #059669;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.live-dot-ping {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 6px #FFFFFF;
+}
+
+.cust-booking-ref-badge {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  background-color: #F1F5F9;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
+.cust-status-badge-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  border-radius: 9999px;
+  transition: transform 0.15s ease;
+}
+
+.cust-status-badge-btn:hover {
+  transform: scale(1.04);
+}
+
+.cust-featured-body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.cust-featured-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 0.4rem 0;
+}
+
+.cust-featured-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  font-size: 0.85rem;
+  color: #475569;
+  margin-top: 0.5rem;
+}
+
+.cust-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cust-meta-item svg {
+  color: #064E3B;
+  flex-shrink: 0;
+}
+
+.cust-featured-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+/* Empty Next Appointment Box */
+.cust-featured-empty {
+  background-color: #FFFFFF;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.cust-empty-info h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0;
+}
+
+.cust-empty-info p {
+  font-size: 0.85rem;
+  color: #64748B;
+  margin: 0.2rem 0 0 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. Quick Action Tiles (3-Column Grid)
+   -------------------------------------------------------------------------- */
+.cust-actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cust-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cust-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.cust-section-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #064E3B;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.15s ease;
+}
+
+.cust-section-link:hover {
+  text-decoration: underline;
+  transform: translateX(2px);
+}
+
+.cust-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.cust-action-tile {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.cust-action-tile:hover {
+  border-color: #064E3B;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(6, 78, 59, 0.08);
+}
+
+.cust-tile-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background-color: #ECFDF5;
+  color: #064E3B;
+  transition: all 0.2s ease;
+}
+
+.cust-action-tile:hover .cust-tile-icon-box {
+  background-color: #064E3B;
+  color: #F8E7C9;
+}
+
+.cust-tile-content h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0;
+}
+
+.cust-tile-content p {
+  font-size: 0.78rem;
+  color: #64748B;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.35;
+}
+
+/* --------------------------------------------------------------------------
+   5. Compact Recent Bookings Table / Rows
+   -------------------------------------------------------------------------- */
+.cust-recent-container {
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.cust-recent-header {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #F1F5F9;
+  background-color: #FAFCF9;
+}
+
+.cust-booking-rows-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.cust-booking-row-item {
+  display: grid;
+  grid-template-columns: 2.2fr 1.5fr 1.1fr 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #F1F5F9;
+  transition: background-color 0.15s ease;
+}
+
+.cust-booking-row-item:last-child {
+  border-bottom: none;
+}
+
+.cust-booking-row-item:hover {
+  background-color: #F8FAFC;
+}
+
+.cust-row-service {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.cust-service-avatar-box {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background-color: #ECFDF5;
+  color: #064E3B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  border: 1px solid #D1FAE5;
+}
+
+.cust-service-text-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cust-row-category {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #064E3B;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cust-row-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0F172A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 0.1rem;
+}
+
+.cust-row-ref {
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: #64748B;
+  margin-top: 0.1rem;
+}
+
+.cust-row-datetime {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  color: #334155;
+}
+
+.cust-row-datetime strong {
+  font-weight: 600;
+}
+
+.cust-row-datetime span {
+  font-size: 0.72rem;
+  color: #64748B;
+}
+
+.cust-row-price {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #064E3B;
+  font-family: var(--font-primary);
+}
+
+.cust-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cust-btn-quick-view {
+  background: none;
+  border: 1px solid #CBD5E1;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.cust-btn-quick-view:hover {
+  border-color: #064E3B;
+  background-color: #064E3B;
+  color: #FFFFFF;
+}
+
+.cust-btn-full-view {
+  background-color: #F8E7C9;
+  border: 1px solid #E5D0A6;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #064E3B;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.cust-btn-full-view:hover {
+  background-color: #064E3B;
+  color: #F8E7C9;
+  border-color: #064E3B;
+}
+
+/* --------------------------------------------------------------------------
+   6. Accessible Interactive Popups / Modals
+   -------------------------------------------------------------------------- */
+.cust-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(6, 78, 59, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: custFadeIn 0.18s ease-out;
+}
+
+.cust-modal-box {
+  background-color: #FFFFFF;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: custSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cust-modal-header {
+  padding: 1.25rem 1.5rem;
+  background-color: #FAFCF9;
+  border-bottom: 1px solid #EEF2F6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cust-modal-title-wrap h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #064E3B;
+  margin: 0;
+}
+
+.cust-modal-title-wrap span {
+  font-size: 0.75rem;
+  color: #64748B;
+  font-family: monospace;
+}
+
+.cust-modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #64748B;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.cust-modal-close-btn:hover {
+  background-color: #F1F5F9;
+  color: #0F172A;
+}
+
+.cust-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.cust-popup-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  background-color: #F8FAFC;
+  padding: 0.85rem;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+}
+
+.cust-popup-k {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #64748B;
+  display: block;
+}
+
+.cust-popup-v {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0F172A;
+  margin-top: 0.1rem;
+}
+
+.cust-popup-pricing-box {
+  background-color: #FAFCF9;
+  border: 1px solid #E5EADF;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.cust-popup-price-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: #475569;
+  margin-bottom: 0.35rem;
+}
+
+.cust-popup-price-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #064E3B;
+  border-top: 1px solid #E2E8F0;
+  padding-top: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.cust-modal-footer {
+  padding: 1rem 1.5rem;
+  background-color: #FAFCF9;
+  border-top: 1px solid #EEF2F6;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Status explanation modal specifics */
+.status-definition-card {
+  border-left: 4px solid #064E3B;
+  padding: 0.85rem 1rem;
+  background-color: #F0FDF4;
+  border-radius: 8px;
+}
+
+.status-stages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.status-stage-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.8rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+}
+
+.status-stage-item.current {
+  background-color: #ECFDF5;
+  font-weight: 700;
+  color: #064E3B;
+}
+
+/* --------------------------------------------------------------------------
+   7. Animations
+   -------------------------------------------------------------------------- */
+@keyframes custFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes custSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   8. Responsive Design
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .cust-metrics-grid,
+  .cust-actions-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cust-booking-row-item {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .cust-row-actions {
+    grid-column: span 2;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+    border-top: 1px dashed #E2E8F0;
+    padding-top: 0.5rem;
+  }
+
+  .cust-featured-body {
+    grid-template-columns: 1fr;
+  }
+
+  .cust-featured-actions {
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .cust-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cust-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cust-booking-row-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .cust-row-actions {
+    grid-column: 1;
+  }
+
+  .cust-featured-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .cust-welcome-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

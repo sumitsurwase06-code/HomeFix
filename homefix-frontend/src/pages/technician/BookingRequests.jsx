@@ -1,149 +1,298 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Eye,
-  Check,
-  X
-} from 'lucide-react';
-import { DEMO_BOOKINGS } from '../../data/bookings';
+import { useAuth } from '../../context/AuthContext';
 import { bookingApi } from '../../services/api';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
-import EmptyState from '../../components/common/EmptyState';
+import './TechnicianPortal.css';
+
+const REJECTION_REASONS = [
+  'Schedule conflict / Already on another job',
+  'Location is outside my service coverage area',
+  'Requires specialized heavy machinery/parts unavailable today',
+  'Personal emergency / Off duty',
+  'Other'
+];
 
 export default function BookingRequests() {
-  const [requests, setRequests] = useState(() =>
-    DEMO_BOOKINGS.filter((b) => b.status === 'Requested')
-  );
-  const [actionNotice, setActionNotice] = useState('');
+  const { currentUser } = useAuth();
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
 
-  const handleAccept = async (id) => {
-    await bookingApi.updateStatus(id, 'Accepted', 'Technician accepted booking request');
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-    setActionNotice(`Booking ${id} accepted! Shifted to Assigned Jobs.`);
-    setTimeout(() => setActionNotice(''), 4000);
+  // Reject modal state
+  const [rejectingJob, setRejectingJob] = useState(null);
+  const [rejectReason, setRejectReason] = useState(REJECTION_REASONS[0]);
+  const [rejectNotes, setRejectNotes] = useState('');
+  const [isRejectSubmitting, setIsRejectSubmitting] = useState(false);
+
+  useEffect(() => {
+    async function loadRequests() {
+      try {
+        setLoading(true);
+        const data = await bookingApi.getTechnicianBookings(currentUser?.id || 1);
+        const pending = (data || []).filter((b) => b.status === 'Requested');
+        setRequests(pending);
+      } catch (err) {
+        console.error('Error fetching requests:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadRequests();
+  }, [currentUser]);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
-  const handleReject = async (id) => {
-    await bookingApi.updateStatus(id, 'Cancelled', 'Technician declined request');
-    setRequests((prev) => prev.filter((r) => r.id !== id));
-    setActionNotice(`Booking ${id} declined.`);
-    setTimeout(() => setActionNotice(''), 4000);
+  const handleAccept = async (job) => {
+    try {
+      setActionLoadingId(job.id);
+      await bookingApi.updateStatus(job.id, 'Accepted', 'Accepted by partner');
+      setRequests((prev) => prev.filter((r) => r.id !== job.id));
+      showToast(`Success! Job ${job.bookingReference || job.id} accepted. Added to your Schedule & My Jobs.`);
+    } catch (err) {
+      alert('Unable to accept job. Please try again.');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleOpenRejectModal = (job) => {
+    setRejectingJob(job);
+    setRejectReason(REJECTION_REASONS[0]);
+    setRejectNotes('');
+  };
+
+  const handleConfirmReject = async () => {
+    if (!rejectingJob) return;
+    try {
+      setIsRejectSubmitting(true);
+      const note = `Declined by technician: ${rejectReason}${rejectNotes ? ` (${rejectNotes})` : ''}`;
+      await bookingApi.updateStatus(rejectingJob.id, 'Cancelled', note);
+      setRequests((prev) => prev.filter((r) => r.id !== rejectingJob.id));
+      showToast(`Request ${rejectingJob.bookingReference || rejectingJob.id} was declined.`);
+      setRejectingJob(null);
+    } catch (err) {
+      alert('Failed to decline request.');
+    } finally {
+      setIsRejectSubmitting(false);
+    }
   };
 
   return (
-    <div className="page-wrapper max-w-4xl" style={{ margin: '0 auto' }}>
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">New Booking Requests</h1>
-          <p className="page-subtitle">
-            Review customer repair descriptions, attached diagnostic photos, and accept dispatch jobs
-          </p>
-        </div>
-      </div>
-
-      {actionNotice && (
-        <div className="alert-box alert-success">
-          <CheckCircle size={16} />
-          <span>{actionNotice}</span>
+    <div className="portal-page">
+      {toastMessage && (
+        <div className="portal-toast">
+          ✓ {toastMessage}
         </div>
       )}
 
-      {requests.length > 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {requests.map((req) => (
-            <Card key={req.id} className="p-6" style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--line)', marginBottom: '1rem' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: '0.75rem', fontWeight: 700, color: 'var(--primary)', backgroundColor: 'rgba(212, 239, 105, 0.1)', padding: '0.15rem 0.5rem', borderRadius: 'var(--radius-xs)', border: '1px solid rgba(212, 239, 105, 0.25)' }}>
-                      {req.id}
-                    </span>
-                    <Badge status="Requested" dot>New Request</Badge>
-                  </div>
-                  <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text)', marginTop: '0.25rem' }}>{req.serviceName}</h3>
-                </div>
+      {/* Page Header */}
+      <div className="portal-page-header">
+        <div>
+          <h1 className="portal-page-title">New Job Requests</h1>
+          <p className="portal-page-subtitle">
+            Inspect customer diagnostic notes, review uploaded problem photographs, and accept dispatch appointments.
+          </p>
+        </div>
+        <div className="portal-badge-counter">
+          {requests.length} {requests.length === 1 ? 'Job Awaiting Decision' : 'Jobs Awaiting Decision'}
+        </div>
+      </div>
 
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>Doorstep Visiting Fee</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--primary)', fontFamily: 'var(--font-display)' }}>₹{req.pricing.visitingCharge}</span>
-                </div>
-              </div>
-
-              {/* Customer & Problem Info */}
-              <div style={{ marginBottom: '1rem' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text)', marginBottom: '0.25rem' }}>{req.problemTitle}</h4>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.75rem' }}>{req.problemDescription}</p>
-
-                {req.problemImages && req.problemImages.length > 0 && (
-                  <div style={{ marginBottom: '0.75rem' }}>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, display: 'block', marginBottom: '0.35rem' }}>Attached Problem Photos:</span>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      {req.problemImages.map((src, i) => (
-                        <img key={i} src={src} alt="Issue" style={{ width: '64px', height: '64px', borderRadius: 'var(--radius-sm)', objectFit: 'cover', border: '1px solid var(--line)' }} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', fontSize: '0.8rem', backgroundColor: 'var(--surface-raised)', padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)', color: 'var(--text-secondary)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Calendar size={14} style={{ color: 'var(--primary)' }} />
-                    <span>{req.appointmentDate}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Clock size={14} style={{ color: 'var(--primary)' }} />
-                    <span>{req.appointmentTime}</span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <MapPin size={14} style={{ color: 'var(--primary)' }} />
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{req.address.locality}, {req.address.city}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.5rem' }}>
-                <Link to={`/technician/bookings/${req.id}`}>
-                  <Button variant="ghost" size="sm" leftIcon={<Eye size={14} />}>
-                    Full Job Details
-                  </Button>
-                </Link>
-
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    leftIcon={<X size={14} />}
-                    onClick={() => handleReject(req.id)}
-                  >
-                    Decline
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    leftIcon={<Check size={14} />}
-                    onClick={() => handleAccept(req.id)}
-                  >
-                    Accept Lead
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
+      {loading ? (
+        <div className="portal-loading">
+          <div className="portal-spinner"></div>
+          <p>Loading incoming dispatch requests...</p>
+        </div>
+      ) : requests.length === 0 ? (
+        <div className="portal-empty-state">
+          <div className="empty-icon">✓</div>
+          <h3 className="empty-title">You're all caught up!</h3>
+          <p className="empty-desc">
+            No new job requests waiting for your response. Check your Schedule to review confirmed assignments.
+          </p>
+          <div className="mt-4 flex gap-3 justify-center">
+            <Link to="/technician/schedule" className="portal-btn portal-btn-primary">
+              View Work Schedule
+            </Link>
+            <Link to="/technician/bookings" className="portal-btn portal-btn-outline">
+              My Active Jobs
+            </Link>
+          </div>
         </div>
       ) : (
-        <EmptyState
-          title="No Pending Lead Requests"
-          description="You are caught up! When nearby customers book your trade skills, new requests will appear here."
-        />
+        <div className="request-cards-stack">
+          {requests.map((job) => (
+            <div key={job.id} className="job-request-card">
+              <div className="job-card-top">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="badge-category">{job.serviceCategory || 'Home Repair'}</span>
+                    <span className="badge-new-lead">New Lead</span>
+                  </div>
+                  <h2 className="job-problem-title font-serif">
+                    {job.problemTitle || `${job.serviceCategory} Service`}
+                  </h2>
+                </div>
+                <div className="text-right">
+                  <span className="job-ref-tag">{job.bookingReference || job.id}</span>
+                  <div className="text-xs text-[var(--color-text-muted)] mt-1">Visiting Fee: <strong className="text-[var(--color-primary)]">₹{job.pricing?.visitingCharge || 199}</strong></div>
+                </div>
+              </div>
+
+              <div className="job-card-meta-grid">
+                <div className="meta-item">
+                  <span className="meta-label">Customer Name</span>
+                  <span className="meta-val font-semibold">{job.customer?.name || 'HomeFix Customer'}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Service Locality</span>
+                  <span className="meta-val">📍 {job.customer?.locality || job.address?.locality || 'Sector 62'}, {job.customer?.city || job.address?.city || 'Noida'}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Requested Date</span>
+                  <span className="meta-val">📅 {job.scheduledDate || 'Flexible / Today'}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Preferred Time Slot</span>
+                  <span className="meta-val">⏰ {job.scheduledTimeSlot || '10:00 AM - 12:00 PM'}</span>
+                </div>
+              </div>
+
+              {job.problemDescription && (
+                <div className="job-problem-box">
+                  <span className="box-label">Customer Problem Description:</span>
+                  <p className="box-text">"{job.problemDescription}"</p>
+                </div>
+              )}
+
+              {/* Uploaded Customer Photos Thumbnail Strip */}
+              {job.problemImages && job.problemImages.length > 0 && (
+                <div className="job-photos-preview-strip">
+                  <span className="photos-strip-title">
+                    📷 {job.problemImages.length} Customer Problem {job.problemImages.length === 1 ? 'Photo' : 'Photos'} Attached:
+                  </span>
+                  <div className="photos-thumbs-row">
+                    {job.problemImages.map((imgUrl, idx) => (
+                      <Link 
+                        key={idx} 
+                        to={`/technician/bookings/${job.id}`}
+                        title="Click to inspect full high-resolution image"
+                        className="photo-thumb-wrap"
+                      >
+                        <img 
+                          src={imgUrl} 
+                          alt={`Problem detail ${idx + 1}`} 
+                          className="photo-thumb-img"
+                          onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=400'; }}
+                        />
+                        <span className="photo-zoom-hint">🔍 Zoom</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="job-card-actions">
+                <Link to={`/technician/bookings/${job.id}`} className="portal-btn portal-btn-outline">
+                  View Full Job Details & Pricing
+                </Link>
+
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    className="portal-btn portal-btn-ghost"
+                    onClick={() => handleOpenRejectModal(job)}
+                    disabled={actionLoadingId === job.id}
+                  >
+                    Reject Request
+                  </button>
+                  <button
+                    type="button"
+                    className="portal-btn portal-btn-primary"
+                    disabled={actionLoadingId === job.id}
+                    onClick={() => handleAccept(job)}
+                  >
+                    {actionLoadingId === job.id ? 'Accepting...' : '✓ Accept Job'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Reject Confirmation Dialog */}
+      {rejectingJob && (
+        <div className="portal-modal-backdrop" onClick={() => !isRejectSubmitting && setRejectingJob(null)}>
+          <div className="portal-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Decline Job Request</h3>
+              <button 
+                className="modal-close-btn"
+                onClick={() => setRejectingJob(null)}
+                disabled={isRejectSubmitting}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p className="modal-lead">
+                Are you sure you want to decline request <strong>{rejectingJob.bookingReference || rejectingJob.id}</strong> ({rejectingJob.problemTitle || rejectingJob.serviceCategory})?
+              </p>
+              <p className="text-xs text-[var(--color-text-muted)] mb-4">
+                This will release the request back to the dispatch pool so another nearby partner can be assigned.
+              </p>
+
+              <label className="form-label font-semibold text-xs block mb-1">
+                Reason for Declining:
+              </label>
+              <select 
+                className="portal-select w-full mb-3"
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+              >
+                {REJECTION_REASONS.map((r, i) => (
+                  <option key={i} value={r}>{r}</option>
+                ))}
+              </select>
+
+              <label className="form-label font-semibold text-xs block mb-1">
+                Additional Note (Optional):
+              </label>
+              <textarea
+                className="portal-textarea w-full"
+                rows="2"
+                placeholder="E.g. Unavailable before 4 PM..."
+                value={rejectNotes}
+                onChange={(e) => setRejectNotes(e.target.value)}
+              />
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="portal-btn portal-btn-ghost"
+                onClick={() => setRejectingJob(null)}
+                disabled={isRejectSubmitting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="portal-btn portal-btn-danger"
+                disabled={isRejectSubmitting}
+                onClick={handleConfirmReject}
+              >
+                {isRejectSubmitting ? 'Declining...' : 'Confirm Decline'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

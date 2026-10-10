@@ -16,12 +16,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../common/Button';
+import RoleSelectModal from '../auth/RoleSelectModal';
 import './Navbar.css';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [navSearch, setNavSearch] = useState('');
   const { currentUser, isAuthenticated, userRole, logout, switchDemoRole } = useAuth();
   const navigate = useNavigate();
@@ -140,21 +142,21 @@ export default function Navbar() {
                       <button
                         type="button"
                         className={`role-pill ${userRole === 'customer' ? 'active' : ''}`}
-                        onClick={() => { switchDemoRole('customer'); setIsUserDropdownOpen(false); }}
+                        onClick={() => { switchDemoRole('customer'); setIsUserDropdownOpen(false); navigate('/customer/dashboard'); }}
                       >
                         Customer
                       </button>
                       <button
                         type="button"
                         className={`role-pill ${userRole === 'technician' ? 'active' : ''}`}
-                        onClick={() => { switchDemoRole('technician'); setIsUserDropdownOpen(false); }}
+                        onClick={() => { switchDemoRole('technician'); setIsUserDropdownOpen(false); navigate('/technician/dashboard'); }}
                       >
                         Technician
                       </button>
                       <button
                         type="button"
                         className={`role-pill ${userRole === 'admin' ? 'active' : ''}`}
-                        onClick={() => { switchDemoRole('admin'); setIsUserDropdownOpen(false); }}
+                        onClick={() => { switchDemoRole('admin'); setIsUserDropdownOpen(false); navigate('/admin/dashboard'); }}
                       >
                         Admin
                       </button>
@@ -191,10 +193,14 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <Link to="/login" className="navbar-login-pill-btn">
+            <button
+              type="button"
+              className="navbar-login-pill-btn"
+              onClick={() => setIsRoleModalOpen(true)}
+            >
               <User size={16} />
               <span>Login / Sign Up</span>
-            </Link>
+            </button>
           )}
         </div>
 
@@ -287,13 +293,16 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="mobile-auth-buttons">
-                <Link
-                  to="/login"
+                <button
+                  type="button"
                   className="btn btn-secondary btn-md w-full"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsRoleModalOpen(true);
+                  }}
                 >
-                  Log In
-                </Link>
+                  Log In (Choose Role)
+                </button>
                 <Link
                   to="/register"
                   className="btn btn-primary btn-md w-full mt-2"
@@ -306,6 +315,12 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Role Selection Modal for explicit account choosing */}
+      <RoleSelectModal
+        isOpen={isRoleModalOpen}
+        onClose={() => setIsRoleModalOpen(false)}
+      />
     </header>
   );
 }

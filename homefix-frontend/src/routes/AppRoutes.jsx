@@ -41,6 +41,7 @@ import Availability from '../pages/technician/Availability';
 import Earnings from '../pages/technician/Earnings';
 import Reviews from '../pages/technician/Reviews';
 import TechnicianProfile from '../pages/technician/TechnicianProfile';
+import Schedule from '../pages/technician/Schedule';
 
 // Admin Pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
@@ -50,6 +51,7 @@ import TechnicianVerification from '../pages/admin/TechnicianVerification';
 import ManageBookings from '../pages/admin/ManageBookings';
 import AdminBookingDetails from '../pages/admin/AdminBookingDetails';
 import Revenue from '../pages/admin/Revenue';
+import Payouts from '../pages/admin/Payouts';
 import ReviewsManagement from '../pages/admin/ReviewsManagement';
 import ServiceCategories from '../pages/admin/ServiceCategories';
 import AuditLogs from '../pages/admin/AuditLogs';
@@ -80,7 +82,7 @@ export default function AppRoutes() {
       <Route
         path="/customer"
         element={
-          <ProtectedRoute allowedRoles={['customer', 'admin']}>
+          <ProtectedRoute allowedRoles={['customer']}>
             <CustomerLayout />
           </ProtectedRoute>
         }
@@ -100,7 +102,7 @@ export default function AppRoutes() {
       <Route
         path="/technician"
         element={
-          <ProtectedRoute allowedRoles={['technician', 'admin']}>
+          <ProtectedRoute allowedRoles={['technician']}>
             <TechnicianLayout />
           </ProtectedRoute>
         }
@@ -110,6 +112,7 @@ export default function AppRoutes() {
         <Route path="requests" element={<BookingRequests />} />
         <Route path="bookings" element={<TechnicianBookings />} />
         <Route path="bookings/:id" element={<JobDetails />} />
+        <Route path="schedule" element={<Schedule />} />
         <Route path="availability" element={<Availability />} />
         <Route path="earnings" element={<Earnings />} />
         <Route path="reviews" element={<Reviews />} />
@@ -133,6 +136,7 @@ export default function AppRoutes() {
         <Route path="bookings" element={<ManageBookings />} />
         <Route path="bookings/:id" element={<AdminBookingDetails />} />
         <Route path="revenue" element={<Revenue />} />
+        <Route path="payouts" element={<Payouts />} />
         <Route path="reviews" element={<ReviewsManagement />} />
         <Route path="services" element={<ServiceCategories />} />
         <Route path="audit-logs" element={<AuditLogs />} />

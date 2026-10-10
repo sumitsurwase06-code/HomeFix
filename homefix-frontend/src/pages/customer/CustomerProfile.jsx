@@ -8,10 +8,18 @@ import Button from '../../components/common/Button';
 export default function CustomerProfile() {
   const { currentUser } = useAuth();
 
-  const [name, setName] = useState(currentUser?.name || 'Rohan Sharma');
-  const [email, setEmail] = useState(currentUser?.email || 'customer@homefix.com');
-  const [phone, setPhone] = useState(currentUser?.phone || '+91 98711 22334');
+  const [name, setName] = useState(currentUser?.name || '');
+  const [email, setEmail] = useState(currentUser?.email || '');
+  const [phone, setPhone] = useState(currentUser?.phone || '');
   const [saved, setSaved] = useState(false);
+
+  React.useEffect(() => {
+    if (currentUser) {
+      setName(currentUser.name || '');
+      setEmail(currentUser.email || '');
+      setPhone(currentUser.phone || '');
+    }
+  }, [currentUser]);
 
   const handleSave = (e) => {
     e.preventDefault();

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { CalendarPlus, Search, Filter } from 'lucide-react';
 import { DEMO_BOOKINGS } from '../../data/bookings';
 import BookingCard from '../../components/booking/BookingCard';
@@ -8,9 +8,21 @@ import Button from '../../components/common/Button';
 import EmptyState from '../../components/common/EmptyState';
 
 export default function MyBookings() {
-  const [activeTab, setActiveTab] = useState('all'); // 'all' | 'active' | 'completed' | 'cancelled'
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialTab = location.state?.tab || queryParams.get('tab') || 'all';
+
+  const [activeTab, setActiveTab] = useState(initialTab); // 'all' | 'active' | 'completed' | 'cancelled'
   const [searchTerm, setSearchTerm] = useState('');
   const [bookingsList, setBookingsList] = useState(DEMO_BOOKINGS);
+
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+    } else if (queryParams.get('tab')) {
+      setActiveTab(queryParams.get('tab'));
+    }
+  }, [location.state, location.search]);
 
   const handleCancel = (bookingId) => {
     setBookingsList((prev) =>

@@ -1,23 +1,45 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, Lock, LogIn, AlertCircle, Wrench, ShieldCheck, UserCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { Mail, Lock, LogIn, AlertCircle, Wrench, ShieldCheck, UserCheck, ArrowLeft, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { DEMO_USERS } from '../../data/demoUsers';
 import Card from '../../components/common/Card';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import RoleSelectModal from '../../components/auth/RoleSelectModal';
 import './Auth.css';
 
 export default function Login() {
-  const [email, setEmail] = useState('customer@homefix.demo');
+  const [searchParams] = useSearchParams();
+  const roleParam = searchParams.get('role')?.toLowerCase();
+
+  const [email, setEmail] = useState(() => {
+    if (roleParam === 'admin') return 'admin@homefix.demo';
+    if (roleParam === 'technician') return 'technician@homefix.demo';
+    return 'customer@homefix.demo';
+  });
   const [password, setPassword] = useState('demo1234');
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (roleParam === 'admin') {
+      setEmail('admin@homefix.demo');
+      setPassword('demo1234');
+    } else if (roleParam === 'technician') {
+      setEmail('technician@homefix.demo');
+      setPassword('demo1234');
+    } else if (roleParam === 'customer') {
+      setEmail('customer@homefix.demo');
+      setPassword('demo1234');
+    }
+  }, [roleParam]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -25,10 +47,19 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const result = await login(email, password);
+      const result = await login(email, password, roleParam || 'customer');
       if (result.success) {
-        const role = result.user.role;
-        const redirectPath = location.state?.from?.pathname || (
+        const role = result.user.role?.toLowerCase();
+        const fromPath = location.state?.from?.pathname;
+        
+        // Ensure redirect path is authorized for the newly authenticated role
+        const isFromAllowed = fromPath && (
+          (role === 'admin' && fromPath.startsWith('/admin')) ||
+          (role === 'technician' && fromPath.startsWith('/technician')) ||
+          (role === 'customer' && fromPath.startsWith('/customer'))
+        );
+
+        const redirectPath = isFromAllowed ? fromPath : (
           role === 'admin' ? '/admin/dashboard' :
           role === 'technician' ? '/technician/dashboard' :
           '/customer/dashboard'
@@ -51,6 +82,27 @@ export default function Login() {
     setError('');
   };
 
+  const getRoleHeaderInfo = () => {
+    if (roleParam === 'technician') {
+      return {
+        title: 'Technician Partner Sign In',
+        subtitle: 'Access your dispatch queue, jobs schedule, and payout ledger'
+      };
+    }
+    if (roleParam === 'admin') {
+      return {
+        title: 'Administrator Console',
+        subtitle: 'Authorized platform operations, partner verification & analytics'
+      };
+    }
+    return {
+      title: 'Customer Portal Sign In',
+      subtitle: 'Book household services and manage ongoing repair appointments'
+    };
+  };
+
+  const headerInfo = getRoleHeaderInfo();
+
   return (
     <div className="auth-page-root">
       <div className="auth-container">
@@ -62,8 +114,17 @@ export default function Login() {
             </div>
             <span>HomeFix</span>
           </Link>
-          <h1 className="auth-title">Welcome Back</h1>
-          <p className="auth-subtitle">Sign in to manage your household bookings or technician dashboard</p>
+          <h1 className="auth-title font-serif">{headerInfo.title}</h1>
+          <p className="auth-subtitle">{headerInfo.subtitle}</p>
+
+          <button
+            type="button"
+            className="text-xs font-semibold text-emerald-800 hover:underline mt-2 inline-flex items-center gap-1 bg-transparent border-none cursor-pointer"
+            onClick={() => setIsRoleModalOpen(true)}
+          >
+            <RefreshCw size={12} />
+            <span>Switch Account Type (Customer / Technician / Admin)</span>
+          </button>
         </div>
 
         {/* Quick Test Persona Selector */}
@@ -146,6 +207,12 @@ export default function Login() {
           </div>
         </Card>
       </div>
+
+      {/* Role Selection Modal */}
+      <RoleSelectModal
+        isOpen={isRoleModalOpen}
+        onClose={() => setIsRoleModalOpen(false)}
+      />
     </div>
   );
 }

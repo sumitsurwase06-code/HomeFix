@@ -167,17 +167,44 @@ export const technicianApi = {
 export const bookingApi = {
   getAll: async () => {
     return new Promise((resolve) => {
-      setTimeout(() => resolve({ data: DEMO_BOOKINGS }), 300);
+      setTimeout(() => resolve(DEMO_BOOKINGS), 150);
     });
   },
 
   getById: async (bookingId) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const bk = DEMO_BOOKINGS.find((b) => b.id === bookingId);
-        if (bk) resolve({ data: bk });
+        const bk = DEMO_BOOKINGS.find((b) => b.id === bookingId || b.bookingReference === bookingId);
+        if (bk) resolve(bk);
         else reject(new Error('Booking not found'));
-      }, 200);
+      }, 100);
+    });
+  },
+
+  getBookingById: async (bookingId) => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        const bk = DEMO_BOOKINGS.find((b) => b.id === bookingId || b.bookingReference === bookingId);
+        if (bk) resolve(bk);
+        else reject(new Error('Booking not found'));
+      }, 100);
+    });
+  },
+
+  getTechnicianBookings: async (techId) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Return active dispatch list from DEMO_BOOKINGS
+        resolve(DEMO_BOOKINGS);
+      }, 150);
+    });
+  },
+
+  getCustomerBookings: async (customerId) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(DEMO_BOOKINGS);
+      }, 150);
     });
   },
 
@@ -186,6 +213,7 @@ export const bookingApi = {
       setTimeout(() => {
         const newBooking = {
           id: 'HF-BK-' + Math.floor(1000 + Math.random() * 9000),
+          bookingReference: 'HF-BK-' + Math.floor(1000 + Math.random() * 9000),
           ...bookingPayload,
           status: 'Requested',
           paymentStatus: 'Pending',
@@ -198,14 +226,25 @@ export const bookingApi = {
             },
           ],
         };
+        DEMO_BOOKINGS.unshift(newBooking);
         resolve({ data: newBooking });
-      }, 600);
+      }, 300);
     });
   },
 
   updateStatus: async (bookingId, newStatus, note = '') => {
     return new Promise((resolve) => {
       setTimeout(() => {
+        const target = DEMO_BOOKINGS.find((b) => b.id === bookingId || b.bookingReference === bookingId);
+        if (target) {
+          target.status = newStatus;
+          if (!target.statusHistory) target.statusHistory = [];
+          target.statusHistory.push({
+            status: newStatus,
+            timestamp: new Date().toISOString(),
+            note: note || `Status transitioned to ${newStatus}`
+          });
+        }
         resolve({
           data: {
             bookingId,
@@ -214,7 +253,7 @@ export const bookingApi = {
             updatedAt: new Date().toISOString(),
           },
         });
-      }, 400);
+      }, 200);
     });
   },
 };

@@ -8,12 +8,12 @@ import { useAuth } from '../../context/AuthContext';
  * Displayed only if VITE_DEMO_MODE is true or in development
  */
 export default function DevModeBar() {
-  const isDemoEnabled = import.meta.env.VITE_DEMO_MODE === 'true';
+  const isDemoEnabled = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true';
   const { switchDemoRole, currentUser } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
-  // If not enabled via environment variable, do not render in normal UI
+  // If not enabled via environment variable and not in dev, do not render
   if (!isDemoEnabled) {
     return null;
   }
