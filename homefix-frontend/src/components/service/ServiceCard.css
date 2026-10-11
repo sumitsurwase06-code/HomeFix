@@ -1,119 +1,249 @@
+/* ==========================================================================
+   HomeFix ServiceCard Component Styles
+   ========================================================================== */
+
 .luxury-service-card {
-  background-color: var(--white);
-  border-radius: var(--radius-xl);
+  background-color: var(--white, #FFFFFF);
+  border-radius: var(--radius-lg, 18px);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-light);
+  box-shadow: 0 4px 16px rgba(6, 78, 59, 0.04);
+  border: 1px solid rgba(6, 78, 59, 0.12);
   display: flex;
   flex-direction: column;
-  transition: all var(--transition-normal);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+  position: relative;
+  height: 100%;
+  outline: none;
 }
 
-.luxury-service-card:hover {
+.luxury-service-card:hover,
+.luxury-service-card:focus-visible {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-card-hover);
-  border-color: rgba(6, 78, 59, 0.25);
+  box-shadow: 0 12px 28px rgba(6, 78, 59, 0.1);
+  border-color: rgba(6, 78, 59, 0.28);
 }
 
+/* 16:9 Aspect Ratio Image Container */
 .service-card-image-wrap {
   position: relative;
   width: 100%;
-  height: 160px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  background-color: var(--champagne-light);
+  background-color: var(--champagne-light, #FFF7E8);
 }
 
 .service-card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-smooth);
+  display: block;
+  transition: transform 0.4s ease;
 }
 
 .luxury-service-card:hover .service-card-img {
-  transform: scale(1.05);
+  transform: scale(1.06);
+}
+
+.service-card-badge-overlay {
+  position: absolute;
+  top: 0.65rem;
+  left: 0.65rem;
+  right: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
 }
 
 .service-popular-pill {
-  position: absolute;
-  top: 0.85rem;
-  right: 0.85rem;
-  background-color: var(--emerald-ink);
-  color: var(--champagne-light);
-  font-size: 0.7rem;
+  background-color: var(--emerald-ink, #064E3B);
+  color: var(--champagne-light, #FFF7E8);
+  font-size: 0.68rem;
   font-weight: 700;
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-full);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full, 9999px);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.35);
 }
 
-.service-card-info-row {
+.service-time-pill {
+  margin-left: auto;
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  color: var(--emerald-dark, #033C2E);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Card Body Content */
+.service-card-body-content {
+  padding: 1.15rem 1.25rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 0.65rem;
+}
+
+.service-card-title-row {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 1.15rem 1.25rem;
-  background-color: var(--white);
+  gap: 0.65rem;
 }
 
 .service-icon-circle {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background-color: var(--emerald-ink);
-  color: var(--champagne);
+  background: linear-gradient(135deg, var(--emerald-dark, #033C2E) 0%, var(--emerald-ink, #064E3B) 100%);
+  color: var(--champagne, #F8E7C9);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all var(--transition-fast);
+  border: 1.5px solid var(--champagne-light, #FFF7E8);
+  box-shadow: 0 2px 6px rgba(6, 78, 59, 0.12);
+  transition: transform 0.25s ease;
 }
 
 .luxury-service-card:hover .service-icon-circle {
-  background-color: var(--emerald-dark);
   transform: scale(1.08);
-}
-
-.service-text-content {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
 }
 
 .service-card-title {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--emerald-ink);
+  color: var(--emerald-dark, #033C2E);
   line-height: 1.2;
+  margin: 0;
 }
 
-.service-card-price {
+.service-card-price-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted, #5F6F68);
+  display: block;
+}
+
+.service-card-desc-text {
   font-size: 0.8rem;
-  color: var(--text-muted);
-  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text-muted, #5F6F68);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.3em;
+}
+
+.service-card-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
   margin-top: 0.15rem;
 }
 
-.service-arrow-circle-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid var(--champagne-border);
-  background-color: var(--champagne-light);
-  color: var(--emerald-ink);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all var(--transition-fast);
-  text-decoration: none;
+.service-mini-tag {
+  font-size: 0.7rem;
+  color: var(--text-secondary, #244237);
+  background-color: #FAF6EF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-full, 9999px);
+  white-space: nowrap;
 }
 
-.luxury-service-card:hover .service-arrow-circle-btn {
-  background-color: var(--emerald-ink);
-  border-color: var(--emerald-ink);
-  color: var(--champagne);
-  transform: translateX(2px);
+.service-mini-tag.more {
+  color: var(--emerald-ink, #064E3B);
+  font-weight: 700;
+  background-color: var(--emerald-subtle, #EDF7F2);
+  border-color: rgba(6, 78, 59, 0.15);
+}
+
+/* Footer & Buttons */
+.service-card-footer-row {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(6, 78, 59, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.service-starting-rate-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.rate-caption {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #5F6F68);
+}
+
+.rate-amount {
+  font-family: var(--font-primary, sans-serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--emerald-ink, #064E3B);
+}
+
+.service-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.service-details-btn {
+  background: none;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  color: var(--text-secondary, #244237);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: all 0.15s ease;
+}
+
+.service-details-btn:hover {
+  background-color: #FAF6EF;
+  border-color: var(--emerald-ink, #064E3B);
+  color: var(--emerald-ink, #064E3B);
+}
+
+.service-book-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-full, 9999px);
+  background: linear-gradient(135deg, var(--emerald-dark, #033C2E) 0%, var(--emerald-ink, #064E3B) 100%);
+  color: var(--champagne-light, #FFF7E8);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.2);
+  transition: all 0.2s ease;
+}
+
+.service-book-action-btn:hover {
+  background: linear-gradient(135deg, #02291E 0%, #044232 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 78, 59, 0.3);
 }

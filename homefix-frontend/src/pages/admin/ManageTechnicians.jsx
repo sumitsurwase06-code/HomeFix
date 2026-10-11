@@ -78,7 +78,7 @@ export default function ManageTechnicians() {
                   <td>{tech.completedJobs} jobs</td>
                   <td><Badge status={tech.status} size="sm" dot>{tech.status}</Badge></td>
                   <td style={{ textAlign: 'right' }}>
-                    <Link to={`/technicians/${tech.id}`}>
+                    <Link to={`/admin/technicians/${tech.id}`}>
                       <Button variant="ghost" size="sm" leftIcon={<Eye size={14} />}>View</Button>
                     </Link>
                   </td>

@@ -801,7 +801,7 @@ export default function AdminDashboard() {
                     </Badge>
                   </td>
                   <td style={{ textAlign: 'right' }}>
-                    <Link to={`/technicians/${tech.id}`}>
+                    <Link to={`/admin/technicians/${tech.id}`}>
                       <Button variant="ghost" size="sm" leftIcon={<Eye size={13} />}>
                         Inspect
                       </Button>

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   UserCheck,
   CheckCircle,
@@ -259,19 +260,19 @@ export default function TechnicianVerification() {
                   <tr key={tech.id}>
                     {/* WHO: Technician Identity */}
                     <td className="col-tech">
-                      <div className="tech-identity-cell">
+                      <Link to={`/admin/technicians/${tech.id}`} className="tech-identity-cell hover:opacity-85">
                         <img
                           src={tech.avatar}
                           alt=""
                           className="tech-identity-avatar"
                         />
                         <div className="tech-identity-text">
-                          <span className="tech-identity-name" title={tech.name}>
+                          <span className="tech-identity-name text-[var(--emerald-ink)] hover:underline" title={tech.name}>
                             {tech.name}
                           </span>
                           <span className="tech-identity-id">{tech.id}</span>
                         </div>
-                      </div>
+                      </Link>
                     </td>
 
                     {/* WHAT: Trade & Skills */}

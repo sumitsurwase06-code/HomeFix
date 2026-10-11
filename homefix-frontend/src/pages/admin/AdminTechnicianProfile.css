@@ -1,0 +1,1010 @@
+/* ==========================================================================
+   HomeFix Admin — Technician Profile & Verification Review Workspace
+   Enterprise Design System: Emerald Ink (#064E3B), Champagne (#F8E7C9), White (#FFFFFF)
+   ========================================================================== */
+
+.admin-tech-profile-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  font-family: var(--font-primary, 'Gilroy', -apple-system, BlinkMacSystemFont, sans-serif);
+  color: var(--text-primary, #10251E);
+}
+
+/* --------------------------------------------------------------------------
+   1. Professional Page Header
+   -------------------------------------------------------------------------- */
+.admin-tech-header-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  border-radius: var(--radius-lg, 20px);
+  padding: 1.25rem 1.75rem;
+  box-shadow: 0 4px 20px rgba(6, 78, 59, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.admin-tech-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-tech-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-tech-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--emerald-ink, #064E3B);
+  text-decoration: none;
+  padding: 0.35rem 0.75rem;
+  background-color: #FAF6EF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-full, 9999px);
+  transition: all 0.2s ease;
+}
+
+.admin-tech-back-btn:hover {
+  background-color: var(--champagne, #F8E7C9);
+  transform: translateX(-2px);
+}
+
+.admin-tech-id-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--emerald-ink, #064E3B);
+  background-color: var(--champagne-light, #FFF7E8);
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm, 8px);
+}
+
+.admin-copy-icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted, #5F6F68);
+  cursor: pointer;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.admin-copy-icon-btn:hover {
+  color: var(--emerald-ink, #064E3B);
+}
+
+.admin-tech-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-tech-page-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--emerald-dark, #033C2E);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.admin-tech-page-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted, #5F6F68);
+  margin: 0;
+}
+
+.admin-tech-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* --------------------------------------------------------------------------
+   Notification Banner
+   -------------------------------------------------------------------------- */
+.admin-notification-banner {
+  padding: 0.75rem 1.25rem;
+  background-color: var(--emerald-subtle, #EDF7F2);
+  border: 1px solid rgba(6, 78, 59, 0.2);
+  border-radius: var(--radius-md, 14px);
+  color: var(--emerald-dark, #033C2E);
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeIn 0.3s ease;
+}
+
+/* --------------------------------------------------------------------------
+   2. Metric KPI Summary Bar
+   -------------------------------------------------------------------------- */
+.admin-tech-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .admin-tech-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-tech-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-metric-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  border-radius: var(--radius-md, 16px);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(6, 78, 59, 0.03);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-metric-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(6, 78, 59, 0.25);
+}
+
+.admin-metric-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.admin-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #5F6F68);
+}
+
+.admin-metric-value {
+  font-family: var(--font-primary);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--emerald-dark, #033C2E);
+}
+
+.admin-metric-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm, 12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-metric-icon-wrap.jobs {
+  background-color: var(--emerald-subtle, #EDF7F2);
+  color: var(--emerald-ink, #064E3B);
+}
+
+.admin-metric-icon-wrap.rating {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.admin-metric-icon-wrap.reviews {
+  background-color: #E0F2FE;
+  color: #0369A1;
+}
+
+.admin-metric-icon-wrap.exp {
+  background-color: var(--champagne-light, #FFF7E8);
+  color: #AF8535;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+}
+
+/* --------------------------------------------------------------------------
+   3. Main Operational Two-Column Grid (65% / 35%)
+   -------------------------------------------------------------------------- */
+.admin-tech-workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(330px, 1.15fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .admin-tech-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-tech-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-tech-side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 1rem;
+}
+
+@media (max-width: 1024px) {
+  .admin-tech-side-column {
+    position: static;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Card Surfaces & Section Cards
+   -------------------------------------------------------------------------- */
+.admin-section-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  border-radius: var(--radius-lg, 20px);
+  padding: 1.5rem;
+  box-shadow: 0 4px 18px rgba(6, 78, 59, 0.04);
+}
+
+.admin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.15rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(6, 78, 59, 0.08);
+}
+
+.admin-section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.admin-section-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm, 10px);
+  background-color: var(--emerald-subtle, #EDF7F2);
+  color: var(--emerald-ink, #064E3B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--emerald-dark, #033C2E);
+  margin: 0;
+}
+
+.admin-section-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full, 9999px);
+  background-color: #FAF6EF;
+  color: var(--text-muted, #5F6F68);
+  border: 1px solid var(--champagne-border, #E2CCA1);
+}
+
+/* --------------------------------------------------------------------------
+   Main Profile Hero Card
+   -------------------------------------------------------------------------- */
+.admin-profile-hero-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+@media (max-width: 640px) {
+  .admin-profile-hero-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+.admin-avatar-container {
+  width: 108px;
+  height: 108px;
+  border-radius: var(--radius-lg, 20px);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  border: 2px solid var(--champagne-border, #E2CCA1);
+  box-shadow: 0 4px 14px rgba(6, 78, 59, 0.1);
+}
+
+.admin-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.admin-avatar-verified-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background-color: var(--emerald-ink, #064E3B);
+  color: #FFFFFF;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.admin-profile-hero-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: 1;
+}
+
+.admin-profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.admin-profile-name {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary, #10251E);
+  margin: 0;
+}
+
+.admin-profile-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted, #5F6F68);
+  margin: 0;
+}
+
+.admin-profile-tags-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.admin-trade-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--emerald-ink, #064E3B);
+  background-color: var(--emerald-subtle, #EDF7F2);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid rgba(6, 78, 59, 0.15);
+}
+
+.admin-profile-quick-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed rgba(6, 78, 59, 0.12);
+  flex-wrap: wrap;
+}
+
+.quick-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.825rem;
+  color: var(--text-secondary, #244237);
+}
+
+.quick-stat-item svg {
+  color: var(--emerald-ink, #064E3B);
+}
+
+/* --------------------------------------------------------------------------
+   Section A: Professional Background
+   -------------------------------------------------------------------------- */
+.admin-bio-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admin-bio-quote {
+  background-color: #FAF6EF;
+  border-left: 4px solid var(--emerald-ink, #064E3B);
+  border-radius: 0 var(--radius-md, 14px) var(--radius-md, 14px) 0;
+  padding: 1rem 1.25rem;
+  position: relative;
+}
+
+.admin-bio-text {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-primary, #10251E);
+  margin: 0;
+}
+
+.admin-read-more-btn {
+  background: none;
+  border: none;
+  color: var(--emerald-ink, #064E3B);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  margin-top: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.admin-read-more-btn:hover {
+  text-decoration: underline;
+}
+
+.admin-qual-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .admin-qual-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-qual-box {
+  background-color: #FAF6EF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-md, 12px);
+  padding: 0.85rem 1rem;
+}
+
+.admin-qual-k {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted, #5F6F68);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.admin-qual-v {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary, #10251E);
+  margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Section B: Skills & Certifications (No Overflow, Clean Wrap)
+   -------------------------------------------------------------------------- */
+.admin-skills-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.admin-skills-group-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--emerald-ink, #064E3B);
+  margin-bottom: 0.5rem;
+}
+
+.admin-skills-badges-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-full, 9999px);
+  background-color: #FAF6EF;
+  color: var(--text-primary, #10251E);
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.admin-skill-chip:hover {
+  background-color: var(--emerald-subtle, #EDF7F2);
+  border-color: var(--emerald-ink, #064E3B);
+  color: var(--emerald-ink, #064E3B);
+}
+
+.admin-certs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.admin-cert-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.15rem;
+  background-color: #FAF6EF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-md, 14px);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-cert-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-cert-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm, 10px);
+  background-color: #FFFFFF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--emerald-ink, #064E3B);
+  flex-shrink: 0;
+}
+
+.admin-cert-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.admin-cert-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary, #10251E);
+  margin: 0;
+}
+
+.admin-cert-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted, #5F6F68);
+}
+
+.admin-cert-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full, 9999px);
+}
+
+.admin-cert-badge.verified {
+  background-color: var(--emerald-subtle, #EDF7F2);
+  color: var(--emerald-ink, #064E3B);
+  border: 1px solid rgba(6, 78, 59, 0.25);
+}
+
+.admin-cert-badge.unverified {
+  background-color: #FEF3C7;
+  color: #854D0E;
+  border: 1px solid rgba(194, 130, 18, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   Section C: Compliance & Verification Documents
+   -------------------------------------------------------------------------- */
+.admin-docs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .admin-docs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-doc-card {
+  background-color: #FAF6EF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-md, 14px);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-doc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-doc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-doc-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary, #10251E);
+  margin: 0;
+}
+
+.admin-doc-preview-box {
+  height: 90px;
+  background-color: #FFFFFF;
+  border: 1px dashed var(--champagne-dark, #EBD5AD);
+  border-radius: var(--radius-sm, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted, #5F6F68);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-doc-preview-box:hover {
+  background-color: var(--champagne-light, #FFF7E8);
+  border-color: var(--emerald-ink, #064E3B);
+  color: var(--emerald-ink, #064E3B);
+}
+
+/* --------------------------------------------------------------------------
+   Section D: Recent Customer Reviews
+   -------------------------------------------------------------------------- */
+.admin-reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admin-review-card {
+  background-color: #FAF6EF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-md, 14px);
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.admin-review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-review-author {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary, #10251E);
+}
+
+.admin-review-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #F59E0B;
+}
+
+.admin-review-comment {
+  font-size: 0.825rem;
+  line-height: 1.5;
+  color: var(--text-secondary, #244237);
+  margin: 0;
+  font-style: italic;
+}
+
+.admin-review-date {
+  font-size: 0.7rem;
+  color: var(--text-muted, #5F6F68);
+}
+
+/* --------------------------------------------------------------------------
+   SIDE COLUMN: Action Controls & Operational Settings
+   -------------------------------------------------------------------------- */
+.admin-actions-card {
+  background: linear-gradient(145deg, #FFFFFF 0%, #FAF6EF 100%);
+  border: 1.5px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-lg, 20px);
+  padding: 1.5rem;
+  box-shadow: 0 6px 22px rgba(6, 78, 59, 0.06);
+}
+
+.admin-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #FFFFFF;
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  border-radius: var(--radius-md, 14px);
+  margin-bottom: 1.25rem;
+}
+
+.admin-status-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.admin-status-k {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted, #5F6F68);
+}
+
+.admin-primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md, 14px);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-primary-btn.approve {
+  background: linear-gradient(135deg, var(--emerald-dark, #033C2E) 0%, var(--emerald-ink, #064E3B) 100%);
+  color: var(--champagne-light, #FFF7E8);
+  box-shadow: 0 4px 14px rgba(6, 78, 59, 0.25);
+}
+
+.admin-primary-btn.approve:hover {
+  background: linear-gradient(135deg, #02291E 0%, #044232 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(6, 78, 59, 0.35);
+}
+
+.admin-secondary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  font-size: 0.825rem;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+  border-radius: var(--radius-md, 14px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 0.5rem;
+}
+
+.admin-secondary-btn.reject {
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid rgba(185, 28, 28, 0.25);
+}
+
+.admin-secondary-btn.reject:hover {
+  background-color: #FEE2E2;
+}
+
+.admin-secondary-btn.suspend {
+  background-color: #FFFBEB;
+  color: #92400E;
+  border: 1px solid rgba(180, 83, 9, 0.25);
+}
+
+.admin-secondary-btn.suspend:hover {
+  background-color: #FEF3C7;
+}
+
+.admin-secondary-btn.reactivate {
+  background-color: var(--emerald-subtle, #EDF7F2);
+  color: var(--emerald-ink, #064E3B);
+  border: 1px solid rgba(6, 78, 59, 0.25);
+}
+
+.admin-secondary-btn.reactivate:hover {
+  background-color: var(--emerald-light, #DCEFE7);
+}
+
+/* --------------------------------------------------------------------------
+   Side Card: Operational & Contact Settings
+   -------------------------------------------------------------------------- */
+.admin-contact-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  border-radius: var(--radius-lg, 20px);
+  padding: 1.5rem;
+  box-shadow: 0 4px 18px rgba(6, 78, 59, 0.04);
+}
+
+.admin-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.admin-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #FAF6EF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-md, 12px);
+}
+
+.admin-contact-icon {
+  color: var(--emerald-ink, #064E3B);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.admin-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.admin-contact-k {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted, #5F6F68);
+}
+
+.admin-contact-v {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary, #10251E);
+  word-break: break-all;
+}
+
+.admin-contact-actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.admin-mini-action-btn {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-full, 9999px);
+  background-color: #FFFFFF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  color: var(--emerald-ink, #064E3B);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all 0.15s ease;
+}
+
+.admin-mini-action-btn:hover {
+  background-color: var(--champagne-light, #FFF7E8);
+  border-color: var(--emerald-ink, #064E3B);
+}
+
+/* --------------------------------------------------------------------------
+   Eligibility Checklist Card
+   -------------------------------------------------------------------------- */
+.admin-eligibility-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.eligibility-check-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.825rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-sm, 8px);
+  background-color: #FAF6EF;
+}
+
+.eligibility-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   Document Lightbox / Inspection Modal
+   -------------------------------------------------------------------------- */
+.doc-inspect-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.doc-inspect-sheet {
+  background: #FFFFFF;
+  border: 1px solid var(--champagne-border, #E2CCA1);
+  border-radius: var(--radius-md, 14px);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.doc-inspect-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--champagne-dark, #EBD5AD);
+}
+
+.doc-inspect-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

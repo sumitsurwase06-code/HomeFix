@@ -16,6 +16,7 @@ import {
 import { DEMO_BOOKINGS } from '../../data/bookings';
 import { paymentApi, bookingApi } from '../../services/api';
 import Card from '../../components/common/Card';
+import Badge from '../../components/common/Badge';
 import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import Modal from '../../components/common/Modal';

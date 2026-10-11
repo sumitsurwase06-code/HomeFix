@@ -47,6 +47,7 @@ import Schedule from '../pages/technician/Schedule';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import ManageCustomers from '../pages/admin/ManageCustomers';
 import ManageTechnicians from '../pages/admin/ManageTechnicians';
+import AdminTechnicianProfile from '../pages/admin/AdminTechnicianProfile';
 import TechnicianVerification from '../pages/admin/TechnicianVerification';
 import ManageBookings from '../pages/admin/ManageBookings';
 import AdminBookingDetails from '../pages/admin/AdminBookingDetails';
@@ -89,6 +90,7 @@ export default function AppRoutes() {
       >
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<CustomerDashboard />} />
+        <Route path="services" element={<Services />} />
         <Route path="book" element={<BookService />} />
         <Route path="technicians" element={<TechnicianSearch />} />
         <Route path="bookings" element={<MyBookings />} />
@@ -132,6 +134,7 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="customers" element={<ManageCustomers />} />
         <Route path="technicians" element={<ManageTechnicians />} />
+        <Route path="technicians/:id" element={<AdminTechnicianProfile />} />
         <Route path="verification" element={<TechnicianVerification />} />
         <Route path="bookings" element={<ManageBookings />} />
         <Route path="bookings/:id" element={<AdminBookingDetails />} />

@@ -20,10 +20,18 @@ import Card from '../../components/common/Card';
 import StatusBadge from '../../components/common/StatusBadge';
 import Button from '../../components/common/Button';
 import ErrorState from '../../components/common/ErrorState';
+import { useAuth } from '../../context/AuthContext';
+import AdminTechnicianProfile from '../admin/AdminTechnicianProfile';
 
 export default function TechnicianDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  // If viewed by an administrator, render the dedicated Enterprise Admin Review Workspace
+  if (currentUser?.role === 'admin') {
+    return <AdminTechnicianProfile />;
+  }
 
   const technician = DEMO_TECHNICIANS.find((t) => t.id === id);
 
