@@ -1,218 +1,337 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, LogIn, AlertCircle, Wrench, ShieldCheck, UserCheck, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Link, useNavigate, useParams, useSearchParams, useLocation } from 'react-router-dom';
+import {
+  User,
+  Wrench,
+  ShieldCheck,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ArrowLeft,
+  AlertCircle,
+  CalendarCheck
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { DEMO_USERS } from '../../data/demoUsers';
-import Card from '../../components/common/Card';
-import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
-import RoleSelectModal from '../../components/auth/RoleSelectModal';
+import { useToast } from '../../context/ToastContext';
 import './Auth.css';
 
-export default function Login() {
-  const [searchParams] = useSearchParams();
-  const roleParam = searchParams.get('role')?.toLowerCase();
+const ROLE_METADATA = {
+  customer: {
+    title: 'Sign in as Customer',
+    subtitle: 'Access your bookings, saved addresses, and service history.',
+    badge: 'Customer Account',
+    buttonLabel: 'Sign In as Customer',
+    icon: User,
+    accentClass: 'role-customer',
+    registrationLink: '/register?role=customer',
+    registrationText: 'Register as Customer →',
+  },
+  technician: {
+    title: 'Sign in as Technician',
+    subtitle: 'Manage service requests, appointments, and earnings.',
+    badge: 'Technician Partner',
+    buttonLabel: 'Sign In as Technician',
+    icon: Wrench,
+    accentClass: 'role-technician',
+    registrationLink: '/register?role=technician',
+    registrationText: 'Register as Technician Partner →',
+  },
+  admin: {
+    title: 'Sign in as Admin',
+    subtitle: 'Manage platform operations and service partners.',
+    badge: 'Platform Administrator',
+    buttonLabel: 'Sign In as Admin',
+    icon: ShieldCheck,
+    accentClass: 'role-admin',
+    registrationLink: null, // Admin registration is strictly disabled
+    registrationText: null,
+  },
+};
 
-  const [email, setEmail] = useState(() => {
-    if (roleParam === 'admin') return 'admin@homefix.demo';
-    if (roleParam === 'technician') return 'technician@homefix.demo';
-    return 'customer@homefix.demo';
-  });
-  const [password, setPassword] = useState('demo1234');
+export default function Login() {
+  const { role: routeRole } = useParams();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { login, logout, isAuthenticated, userRole } = useAuth();
+  const { toast } = useToast();
+
+  // Normalize role from route params or fallback query
+  const queryRole = searchParams.get('role');
+  const roleKey = (routeRole || queryRole || 'customer').toLowerCase();
+  const roleConfig = ROLE_METADATA[roleKey] || ROLE_METADATA.customer;
+
+  // Preserve valid internal return destination ONLY for active booking flows
+  const rawReturnTo = searchParams.get('returnTo') || location.state?.returnTo;
+  const isInternalUrl = (url) => url && typeof url === 'string' && url.startsWith('/') && !url.startsWith('//') && !url.includes('://');
+  const returnTo = isInternalUrl(rawReturnTo) ? rawReturnTo : null;
+  // A customer return destination is ONLY valid if it is an active service booking flow (/customer/book...)
+  const isCustomerBookingFlow = Boolean(returnTo && returnTo.startsWith('/customer/book'));
+
+  // Empty credentials state by default (no prefilled values)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
 
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-
+  // If already authenticated and visiting login, route to appropriate portal
   useEffect(() => {
-    if (roleParam === 'admin') {
-      setEmail('admin@homefix.demo');
-      setPassword('demo1234');
-    } else if (roleParam === 'technician') {
-      setEmail('technician@homefix.demo');
-      setPassword('demo1234');
-    } else if (roleParam === 'customer') {
-      setEmail('customer@homefix.demo');
-      setPassword('demo1234');
+    if (isAuthenticated && userRole) {
+      if (userRole === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (userRole === 'technician') {
+        navigate('/technician/dashboard', { replace: true });
+      } else {
+        // Customer: only restore if it was an active booking flow, otherwise ALWAYS navigate to exact public homepage ('/')
+        navigate(isCustomerBookingFlow && returnTo ? returnTo : '/', { replace: true });
+      }
     }
-  }, [roleParam]);
+  }, [isAuthenticated, userRole, navigate, returnTo, isCustomerBookingFlow]);
 
-  const handleLogin = async (e) => {
+  // If route role is completely invalid, bounce back to Page One
+  useEffect(() => {
+    if (routeRole && !['customer', 'technician', 'admin'].includes(routeRole.toLowerCase())) {
+      navigate('/login', { replace: true });
+    }
+  }, [routeRole, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      setError('Please enter both your email address/phone and password.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      const result = await login(email, password, roleParam || 'customer');
-      if (result.success) {
-        const role = result.user.role?.toLowerCase();
-        const fromPath = location.state?.from?.pathname;
-        
-        // Ensure redirect path is authorized for the newly authenticated role
-        const isFromAllowed = fromPath && (
-          (role === 'admin' && fromPath.startsWith('/admin')) ||
-          (role === 'technician' && fromPath.startsWith('/technician')) ||
-          (role === 'customer' && fromPath.startsWith('/customer'))
-        );
+      const result = await login(trimmedEmail, trimmedPassword, roleKey, rememberMe);
 
-        const redirectPath = isFromAllowed ? fromPath : (
-          role === 'admin' ? '/admin/dashboard' :
-          role === 'technician' ? '/technician/dashboard' :
-          '/customer/dashboard'
-        );
-        navigate(redirectPath, { replace: true });
+      if (result.success && result.user) {
+        const actualRole = result.user.role?.toLowerCase();
+        const expectedRole = roleKey.toLowerCase();
+
+        // Security check: Verify that user's account role matches the requested portal
+        if (actualRole && actualRole !== expectedRole) {
+          logout(); // Terminate session to avoid unauthorized access
+          const roleDisplayNames = {
+            customer: 'Customer',
+            technician: 'Technician Partner',
+            admin: 'Administrator',
+          };
+          setError(
+            `This account is registered as a ${roleDisplayNames[actualRole] || actualRole}. Please sign in through the ${roleDisplayNames[actualRole] || actualRole} portal.`
+          );
+          return;
+        }
+
+        toast?.success?.(`Signed in successfully as ${result.user.name}`);
+
+        // Route safely according to role and validated return destination
+        if (actualRole === 'customer') {
+          // Normal Customer login from the login page: ALWAYS redirect to public homepage ('/')
+          // Only if customer login was initiated from an active booking flow (/customer/book...), restore it
+          if (isCustomerBookingFlow && returnTo) {
+            navigate(returnTo, { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
+        } else if (actualRole === 'technician') {
+          navigate('/technician/dashboard', { replace: true });
+        } else if (actualRole === 'admin') {
+          navigate('/admin/dashboard', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
       } else {
-        setError(result.error || 'Failed to authenticate.');
+        setError(result.error || 'Invalid credentials. Please verify your email and password.');
       }
     } catch (err) {
-      setError('An unexpected error occurred during login.');
+      setError('An unexpected error occurred. Please try again later.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Quick 1-click credential autofill for viva presentation
-  const setDemoPersona = (demoUser) => {
-    setEmail(demoUser.email);
-    setPassword('demo1234');
-    setError('');
-  };
-
-  const getRoleHeaderInfo = () => {
-    if (roleParam === 'technician') {
-      return {
-        title: 'Technician Partner Sign In',
-        subtitle: 'Access your dispatch queue, jobs schedule, and payout ledger'
-      };
-    }
-    if (roleParam === 'admin') {
-      return {
-        title: 'Administrator Console',
-        subtitle: 'Authorized platform operations, partner verification & analytics'
-      };
-    }
-    return {
-      title: 'Customer Portal Sign In',
-      subtitle: 'Book household services and manage ongoing repair appointments'
-    };
-  };
-
-  const headerInfo = getRoleHeaderInfo();
+  const IconComponent = roleConfig.icon;
+  const chooseRoleUrl = isCustomerBookingFlow && returnTo ? `/login?returnTo=${encodeURIComponent(returnTo)}` : '/login';
+  const isBookingFlow = isCustomerBookingFlow && roleKey === 'customer';
 
   return (
     <div className="auth-page-root">
-      <div className="auth-container">
-        {/* Brand Header */}
-        <div className="auth-brand-header">
-          <Link to="/" className="auth-brand-logo">
-            <div className="brand-icon">
-              <Wrench size={20} />
-            </div>
-            <span>HomeFix</span>
+      <div className="auth-page-wrapper">
+        {/* Top Back Action */}
+        <div className="auth-top-action-bar">
+          <Link to={chooseRoleUrl} className="auth-back-button" title="Back to Account Selection">
+            <ArrowLeft size={16} />
+            <span>Choose different account</span>
           </Link>
-          <h1 className="auth-title font-serif">{headerInfo.title}</h1>
-          <p className="auth-subtitle">{headerInfo.subtitle}</p>
 
-          <button
-            type="button"
-            className="text-xs font-semibold text-emerald-800 hover:underline mt-2 inline-flex items-center gap-1 bg-transparent border-none cursor-pointer"
-            onClick={() => setIsRoleModalOpen(true)}
-          >
-            <RefreshCw size={12} />
-            <span>Switch Account Type (Customer / Technician / Admin)</span>
-          </button>
+          <Link to="/" className="auth-brand-pill">
+            <div className="brand-icon-xs">
+              <Wrench size={14} />
+            </div>
+            <span className="brand-name-xs">HomeFix</span>
+          </Link>
         </div>
 
-        {/* Quick Test Persona Selector */}
-        <div className="demo-persona-grid mb-4">
-          {DEMO_USERS.map((u) => (
-            <button
-              key={u.id}
-              type="button"
-              className={`persona-card ${email === u.email ? 'active' : ''}`}
-              onClick={() => setDemoPersona(u)}
-            >
-              <span className="persona-role">{u.role}</span>
-              <span className="persona-name">{u.name.split(' ')[0]}</span>
-            </button>
-          ))}
-        </div>
+        {/* Centered Luxury Card */}
+        <div className="auth-card-container">
+          {/* Role Header */}
+          <div className="auth-card-header">
+            <div className={`auth-role-badge ${roleConfig.accentClass}`}>
+              <IconComponent size={16} />
+              <span>{roleConfig.badge}</span>
+            </div>
 
-        <Card className="auth-card">
+            <h1 className="auth-card-title">{roleConfig.title}</h1>
+            <p className="auth-card-subtitle">{roleConfig.subtitle}</p>
+
+            {/* Contextual message for in-progress booking */}
+            {isBookingFlow && (
+              <div className="auth-context-note">
+                <CalendarCheck size={16} className="context-note-icon" />
+                <span>Signing in will restore your doorstep booking automatically.</span>
+              </div>
+            )}
+          </div>
+
+          {/* Error Banner */}
           {error && (
             <div className="auth-error-banner" role="alert">
-              <AlertCircle size={16} />
+              <AlertCircle size={16} className="flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin}>
-            <Input
-              label="Email Address or Phone"
-              type="email"
-              required
-              leftIcon={<Mail size={16} />}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
+          {/* Form */}
+          <form className="auth-form" onSubmit={handleSubmit} noValidate>
+            {/* Email or Phone */}
+            <div className="auth-field-group">
+              <label htmlFor="auth-email" className="auth-field-label">
+                Email address or mobile number
+              </label>
+              <div className="auth-input-wrapper">
+                <Mail size={16} className="auth-input-icon" />
+                <input
+                  id="auth-email"
+                  type="text"
+                  required
+                  autoFocus
+                  autoComplete="username"
+                  className="auth-input-control"
+                  placeholder={
+                    roleKey === 'customer'
+                      ? 'e.g. name@example.com or 9876543210'
+                      : roleKey === 'technician'
+                      ? 'partner@example.com or phone'
+                      : 'admin@homefix.demo'
+                  }
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+            </div>
 
-            <Input
-              label="Password"
-              type="password"
-              required
-              leftIcon={<Lock size={16} />}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
+            {/* Password */}
+            <div className="auth-field-group">
+              <div className="auth-field-label-row">
+                <label htmlFor="auth-password" className="auth-field-label">
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="auth-forgot-link"
+                  tabIndex={0}
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="auth-input-wrapper">
+                <Lock size={16} className="auth-input-icon" />
+                <input
+                  id="auth-password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  className="auth-input-control"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="auth-password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={0}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
 
-            <div className="auth-options-row">
-              <label className="checkbox-label">
+            {/* Remember Me */}
+            <div className="auth-checkbox-row">
+              <label className="auth-checkbox-label">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <span>Remember me</span>
+                <span>Remember me on this device</span>
               </label>
-
-              <Link to="/forgot-password" className="auth-link-sm">
-                Forgot password?
-              </Link>
             </div>
 
-            <Button
+            {/* Primary Submit Button */}
+            <button
               type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              isLoading={isSubmitting}
-              rightIcon={<LogIn size={16} />}
-              className="mt-4"
+              className="auth-primary-submit-btn"
+              disabled={isSubmitting}
             >
-              Sign In to Account
-            </Button>
+              {isSubmitting ? (
+                <span className="auth-submit-loading">
+                  <span className="auth-submit-spinner" />
+                  <span>Verifying credentials...</span>
+                </span>
+              ) : (
+                <span className="auth-submit-content">
+                  <span>{roleConfig.buttonLabel}</span>
+                  <ArrowRight size={16} />
+                </span>
+              )}
+            </button>
           </form>
 
-          <div className="auth-footer-prompt">
-            Don't have an account?{' '}
-            <Link to="/register" className="auth-link-bold">
-              Register as Customer or Technician
-            </Link>
-          </div>
-        </Card>
-      </div>
+          {/* Account Registration Link (Customer & Technician only) */}
+          {roleConfig.registrationLink ? (
+            <div className="auth-registration-footer">
+              <span>Don't have an account? </span>
+              <Link to={roleConfig.registrationLink} className="auth-registration-link">
+                {roleConfig.registrationText}
+              </Link>
+            </div>
+          ) : (
+            <div className="auth-admin-security-note">
+              <span>Admin credentials are provisioned by Platform Operations.</span>
+            </div>
+          )}
+        </div>
 
-      {/* Role Selection Modal */}
-      <RoleSelectModal
-        isOpen={isRoleModalOpen}
-        onClose={() => setIsRoleModalOpen(false)}
-      />
+        {/* Small Trust Note */}
+        <footer className="auth-page-subfooter">
+          <p>HomeFix Platform · Secure Session Verification</p>
+        </footer>
+      </div>
     </div>
   );
 }

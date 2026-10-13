@@ -16,16 +16,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../common/Button';
-import RoleSelectModal from '../auth/RoleSelectModal';
 import './Navbar.css';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [navSearch, setNavSearch] = useState('');
-  const { currentUser, isAuthenticated, userRole, logout, switchDemoRole } = useAuth();
+  const { currentUser, isAuthenticated, userRole, logout, resetToGuest, switchDemoRole, openLoginModal } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -142,7 +140,7 @@ export default function Navbar() {
                       <button
                         type="button"
                         className={`role-pill ${userRole === 'customer' ? 'active' : ''}`}
-                        onClick={() => { switchDemoRole('customer'); setIsUserDropdownOpen(false); navigate('/customer/dashboard'); }}
+                        onClick={() => { switchDemoRole('customer'); setIsUserDropdownOpen(false); navigate('/'); }}
                       >
                         Customer
                       </button>
@@ -185,6 +183,20 @@ export default function Navbar() {
                     </Link>
                   )}
 
+                  <button
+                    type="button"
+                    className="dropdown-item text-muted"
+                    onClick={() => {
+                      resetToGuest();
+                      setIsUserDropdownOpen(false);
+                      navigate('/');
+                    }}
+                    title="Clear active demo session and browse as Public Guest"
+                  >
+                    <User size={16} />
+                    <span>Switch to Public Guest</span>
+                  </button>
+
                   <button type="button" className="dropdown-item dropdown-logout" onClick={handleLogout}>
                     <LogOut size={16} />
                     <span>Log Out</span>
@@ -193,14 +205,13 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <button
-              type="button"
+            <Link
+              to="/login"
               className="navbar-login-pill-btn"
-              onClick={() => setIsRoleModalOpen(true)}
             >
               <User size={16} />
               <span>Login / Sign Up</span>
-            </button>
+            </Link>
           )}
         </div>
 
@@ -285,6 +296,17 @@ export default function Navbar() {
                   <button
                     type="button"
                     className="btn btn-outline btn-sm w-full mt-2"
+                    onClick={() => {
+                      resetToGuest();
+                      setIsMobileMenuOpen(false);
+                      navigate('/');
+                    }}
+                  >
+                    Switch to Public Guest
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm w-full mt-2"
                     onClick={handleLogout}
                   >
                     Log Out
@@ -298,10 +320,10 @@ export default function Navbar() {
                   className="btn btn-secondary btn-md w-full"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
-                    setIsRoleModalOpen(true);
+                    navigate('/login');
                   }}
                 >
-                  Log In (Choose Role)
+                  Log In / Sign Up
                 </button>
                 <Link
                   to="/register"
@@ -315,12 +337,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-
-      {/* Role Selection Modal for explicit account choosing */}
-      <RoleSelectModal
-        isOpen={isRoleModalOpen}
-        onClose={() => setIsRoleModalOpen(false)}
-      />
     </header>
   );
 }

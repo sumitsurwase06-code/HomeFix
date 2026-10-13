@@ -38,7 +38,7 @@ export default function OTPVerification() {
       if (state.role === 'technician') {
         navigate('/technician/dashboard', { replace: true });
       } else {
-        navigate('/customer/dashboard', { replace: true });
+        navigate('/', { replace: true });
       }
     } catch (err) {
       setError(err.message || 'Invalid OTP code.');

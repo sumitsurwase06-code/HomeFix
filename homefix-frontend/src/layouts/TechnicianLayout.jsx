@@ -56,7 +56,7 @@ export default function TechnicianLayout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/', { replace: true });
   };
 
   // Count pending incoming requests for the badge

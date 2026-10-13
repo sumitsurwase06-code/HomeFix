@@ -14,6 +14,7 @@ import {
   Clock,
   Info
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './ServiceCard.css';
 
 const ICON_MAP = {
@@ -42,14 +43,24 @@ const SERVICE_IMAGES = {
 
 export default function ServiceCard({ service, onSelect, onExplore }) {
   const navigate = useNavigate();
+  const { isAuthenticated, openLoginModal } = useAuth();
   const IconComponent = ICON_MAP[service.iconName] || Wrench;
   const imageSrc = service.image || SERVICE_IMAGES[service.id] || SERVICE_IMAGES.plumbing;
+
+  const triggerBooking = () => {
+    const targetUrl = `/customer/book?service=${service.id}`;
+    if (isAuthenticated) {
+      navigate(targetUrl);
+    } else {
+      navigate(`/login?returnTo=${encodeURIComponent(targetUrl)}`);
+    }
+  };
 
   const handleCardClick = () => {
     if (onSelect) {
       onSelect(service);
     } else {
-      navigate(`/customer/book?service=${service.id}`);
+      triggerBooking();
     }
   };
 
@@ -64,7 +75,11 @@ export default function ServiceCard({ service, onSelect, onExplore }) {
 
   const handleBookClick = (e) => {
     e.stopPropagation();
-    navigate(`/customer/book?service=${service.id}`);
+    if (onSelect) {
+      onSelect(service);
+    } else {
+      triggerBooking();
+    }
   };
 
   return (

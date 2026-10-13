@@ -1,10 +1,12 @@
 import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Wrench, Shield, ArrowRight, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './RoleSelectModal.css';
 
 export default function RoleSelectModal({ isOpen, onClose }) {
   const navigate = useNavigate();
+  const { openLoginModal } = useAuth();
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -20,7 +22,7 @@ export default function RoleSelectModal({ isOpen, onClose }) {
 
   const handleSelectRole = (role) => {
     onClose();
-    navigate(`/login?role=${role}`);
+    openLoginModal({ role });
   };
 
   return (

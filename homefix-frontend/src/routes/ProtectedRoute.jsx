@@ -32,7 +32,7 @@ export default function ProtectedRoute({ children, allowedRoles = [] }) {
     if (normalizedUserRole === 'technician') {
       return <Navigate to="/technician/dashboard" replace />;
     }
-    return <Navigate to="/customer/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;

@@ -26,7 +26,16 @@ import AdminTechnicianProfile from '../admin/AdminTechnicianProfile';
 export default function TechnicianDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, isAuthenticated, openLoginModal } = useAuth();
+
+  const handleBookTechnician = () => {
+    const targetUrl = `/customer/book?technicianId=${technician.id}&service=${technician.category}`;
+    if (isAuthenticated) {
+      navigate(targetUrl);
+    } else {
+      navigate(`/login?returnTo=${encodeURIComponent(targetUrl)}`);
+    }
+  };
 
   // If viewed by an administrator, render the dedicated Enterprise Admin Review Workspace
   if (currentUser?.role === 'admin') {
@@ -117,11 +126,15 @@ export default function TechnicianDetails() {
             </div>
 
             <div className="mt-6">
-              <Link to={`/customer/book?technicianId=${technician.id}&service=${technician.category}`}>
-                <Button variant="primary" fullWidth size="lg" rightIcon={<ArrowRight size={16} />}>
-                  Book This Professional
-                </Button>
-              </Link>
+              <Button
+                variant="primary"
+                fullWidth
+                size="lg"
+                rightIcon={<ArrowRight size={16} />}
+                onClick={handleBookTechnician}
+              >
+                Book This Professional
+              </Button>
             </div>
           </Card>
 

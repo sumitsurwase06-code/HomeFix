@@ -1,0 +1,409 @@
+/* ==========================================================================
+   Page One: Choose Account Type (HomeFix Two-Page Login Flow)
+   ========================================================================== */
+
+.choose-role-page {
+  min-height: 100vh;
+  background-color: #fdfbf7;
+  background-image: 
+    radial-gradient(at 10% 20%, rgba(248, 231, 201, 0.45) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(6, 78, 59, 0.05) 0px, transparent 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+}
+
+.choose-role-wrapper {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Navigation */
+.choose-role-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(235, 213, 173, 0.5);
+}
+
+.choose-role-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #064e3b;
+  text-decoration: none;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(248, 231, 201, 0.4);
+  border: 1px solid rgba(235, 213, 173, 0.6);
+  transition: all 0.2s ease;
+}
+
+.choose-role-back-link:hover {
+  background: #064e3b;
+  color: #f8e7c9;
+  border-color: #064e3b;
+  transform: translateX(-2px);
+}
+
+.choose-role-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+}
+
+.choose-role-brand-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: #064e3b;
+  color: #f8e7c9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(6, 78, 59, 0.2);
+}
+
+.choose-role-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-name-text {
+  font-family: var(--font-serif, 'Playfair Display', Georgia, serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #064e3b;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.brand-tagline-text {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #854d0e;
+  letter-spacing: 0.12em;
+}
+
+/* Header Text */
+.choose-role-header {
+  margin-bottom: 2.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.choose-role-eyebrow {
+  display: inline-block;
+  font-size: 0.725rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.choose-role-title {
+  font-family: var(--font-serif, 'Playfair Display', Georgia, serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #064e3b;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.choose-role-subtitle {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin: 0.65rem 0 0;
+  font-weight: 400;
+}
+
+/* Context Pill for Booking in Progress */
+.choose-role-context-pill {
+  margin-top: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 1.25rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-left: 4px solid #059669;
+  border-radius: 12px;
+  color: #065f46;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+  animation: contextFadeIn 0.3s ease;
+}
+
+@keyframes contextFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.context-pill-icon {
+  color: #059669;
+  flex-shrink: 0;
+}
+
+/* 3 Equal Horizontal Account Cards Grid */
+.choose-role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Account Card Styling */
+.choose-role-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid rgba(235, 213, 173, 0.7);
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  position: relative;
+  outline: none;
+}
+
+.choose-role-card:hover {
+  transform: translateY(-6px);
+  border-color: #064e3b;
+  box-shadow: 0 20px 40px -10px rgba(6, 78, 59, 0.16);
+}
+
+.choose-role-card:focus-visible {
+  border-color: #064e3b;
+  box-shadow: 0 0 0 4px rgba(6, 78, 59, 0.25);
+}
+
+/* Card Top Row */
+.card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.card-icon-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+
+.choose-role-card:hover .card-icon-circle {
+  transform: scale(1.08);
+}
+
+.customer-icon {
+  background: #ecfdf5;
+  color: #064e3b;
+  border: 1px solid #a7f3d0;
+}
+
+.technician-icon {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.admin-icon {
+  background: #fefce8;
+  color: #854d0e;
+  border: 1px solid #fef08a;
+}
+
+.card-role-badge {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+/* Card Body */
+.card-body {
+  flex-grow: 1;
+  margin-bottom: 1.75rem;
+}
+
+.card-role-title {
+  font-family: var(--font-serif, 'Playfair Display', Georgia, serif);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.card-role-desc {
+  font-size: 0.9rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Card Action Button */
+.card-action-wrap {
+  width: 100%;
+}
+
+.card-action-btn {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #f8fafc;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+}
+
+.choose-role-card:hover .customer-btn {
+  background: #064e3b;
+  color: #f8e7c9;
+  border-color: #064e3b;
+  box-shadow: 0 4px 14px rgba(6, 78, 59, 0.25);
+}
+
+.choose-role-card:hover .technician-btn {
+  background: #0369a1;
+  color: #ffffff;
+  border-color: #0369a1;
+  box-shadow: 0 4px 14px rgba(3, 105, 161, 0.25);
+}
+
+.choose-role-card:hover .admin-btn {
+  background: #78350f;
+  color: #fef3c7;
+  border-color: #78350f;
+  box-shadow: 0 4px 14px rgba(120, 53, 15, 0.25);
+}
+
+.choose-role-card:hover .card-action-btn svg {
+  transform: translateX(3px);
+  transition: transform 0.2s ease;
+}
+
+/* Footer Section */
+.choose-role-footer {
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(235, 213, 173, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.footer-support-text {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.footer-support-link {
+  color: #064e3b;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.footer-support-link:hover {
+  text-decoration: underline;
+}
+
+.footer-links-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.footer-link {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-link:hover {
+  color: #064e3b;
+}
+
+.footer-bullet {
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   Responsive Adaptations
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .choose-role-title {
+    font-size: 2rem;
+  }
+  .choose-role-grid {
+    gap: 1rem;
+  }
+  .choose-role-card {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .choose-role-page {
+    padding: 1.5rem 1rem;
+  }
+  .choose-role-nav {
+    margin-bottom: 1.75rem;
+  }
+  .choose-role-title {
+    font-size: 1.75rem;
+  }
+  .choose-role-subtitle {
+    font-size: 0.95rem;
+  }
+  .choose-role-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+}

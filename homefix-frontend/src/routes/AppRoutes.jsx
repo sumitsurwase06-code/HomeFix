@@ -17,6 +17,7 @@ import Contact from '../pages/public/Contact';
 import NotFound from '../pages/public/NotFound';
 
 // Auth Pages
+import ChooseRole from '../pages/auth/ChooseRole';
 import Login from '../pages/auth/Login';
 import Register from '../pages/auth/Register';
 import ForgotPassword from '../pages/auth/ForgotPassword';
@@ -73,8 +74,9 @@ export default function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
       </Route>
 
-      {/* Auth Pages (Independent) */}
-      <Route path="/login" element={<Login />} />
+      {/* Auth Pages (Two-Page Flow) */}
+      <Route path="/login" element={<ChooseRole />} />
+      <Route path="/login/:role" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verify-otp" element={<OTPVerification />} />

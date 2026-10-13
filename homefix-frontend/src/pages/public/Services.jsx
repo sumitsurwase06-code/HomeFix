@@ -26,6 +26,7 @@ import { SERVICE_CATEGORIES } from '../../data/services';
 import { customerApi } from '../../services/api';
 import ServiceCard from '../../components/service/ServiceCard';
 import Modal from '../../components/common/Modal';
+import { useAuth } from '../../context/AuthContext';
 import './Services.css';
 
 const CATEGORY_ICONS = {
@@ -44,6 +45,16 @@ const CATEGORY_ICONS = {
 export default function Services() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { isAuthenticated, openLoginModal } = useAuth();
+
+  const handleBookService = (service) => {
+    const targetUrl = `/customer/book?service=${service.id}`;
+    if (isAuthenticated) {
+      navigate(targetUrl);
+    } else {
+      navigate(`/login?returnTo=${encodeURIComponent(targetUrl)}`);
+    }
+  };
 
   // Search & Filter state
   const initialSearch = searchParams.get('search') || '';
@@ -380,7 +391,7 @@ export default function Services() {
               <ServiceCard
                 key={service.id}
                 service={service}
-                onSelect={() => navigate(`/customer/book?service=${service.id}`)}
+                onSelect={() => handleBookService(service)}
                 onExplore={(srv) => setActiveServiceForModal(srv)}
               />
             ))}
@@ -472,9 +483,9 @@ export default function Services() {
                 type="button"
                 className="service-book-now-btn"
                 onClick={() => {
-                  const srvId = activeServiceForModal.id;
+                  const srv = activeServiceForModal;
                   setActiveServiceForModal(null);
-                  navigate(`/customer/book?service=${srvId}`);
+                  handleBookService(srv);
                 }}
               >
                 <span>Book This Service</span>

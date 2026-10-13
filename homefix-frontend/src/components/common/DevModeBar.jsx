@@ -9,7 +9,7 @@ import { useAuth } from '../../context/AuthContext';
  */
 export default function DevModeBar() {
   const isDemoEnabled = import.meta.env.DEV || import.meta.env.VITE_DEMO_MODE === 'true';
-  const { switchDemoRole, currentUser } = useAuth();
+  const { switchDemoRole, resetToGuest, currentUser } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -43,6 +43,22 @@ export default function DevModeBar() {
           <button
             type="button"
             style={{
+              background: !currentUser ? '#F8E7C9' : 'transparent',
+              color: !currentUser ? '#064E3B' : '#FFF7E8',
+              border: '1px solid #EBD5AD',
+              borderRadius: '6px',
+              padding: '2px 8px',
+              cursor: 'pointer',
+              fontWeight: 600
+            }}
+            onClick={() => { resetToGuest(); navigate('/'); }}
+            title="Switch to Public Guest mode"
+          >
+            Public Guest
+          </button>
+          <button
+            type="button"
+            style={{
               background: currentUser?.role === 'customer' ? '#F8E7C9' : 'transparent',
               color: currentUser?.role === 'customer' ? '#064E3B' : '#FFF7E8',
               border: '1px solid #EBD5AD',
@@ -51,7 +67,7 @@ export default function DevModeBar() {
               cursor: 'pointer',
               fontWeight: 600
             }}
-            onClick={() => { switchDemoRole('customer'); navigate('/customer/dashboard'); }}
+            onClick={() => { switchDemoRole('customer'); navigate('/'); }}
           >
             Customer
           </button>

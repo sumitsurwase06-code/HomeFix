@@ -24,16 +24,40 @@ import ServiceCard from '../../components/service/ServiceCard';
 import TechnicianCard from '../../components/technician/TechnicianCard';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
+import { useAuth } from '../../context/AuthContext';
 import './Home.css';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   const handleHeroSearch = (e) => {
     e.preventDefault();
-    navigate(`/customer/book?query=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(locationQuery)}`);
+    const targetUrl = `/customer/book?query=${encodeURIComponent(searchQuery)}&location=${encodeURIComponent(locationQuery)}`;
+    if (isAuthenticated) {
+      navigate(targetUrl);
+    } else {
+      navigate(`/login?returnTo=${encodeURIComponent(targetUrl)}`);
+    }
+  };
+
+  const handleBookServiceClick = () => {
+    if (isAuthenticated) {
+      navigate('/customer/book');
+    } else {
+      navigate(`/login?returnTo=${encodeURIComponent('/customer/book')}`);
+    }
+  };
+
+  const handleSelectService = (service) => {
+    const targetUrl = `/customer/book?service=${service.id}`;
+    if (isAuthenticated) {
+      navigate(targetUrl);
+    } else {
+      navigate(`/login?returnTo=${encodeURIComponent(targetUrl)}`);
+    }
   };
 
   return (
@@ -54,10 +78,14 @@ export default function Home() {
 
             {/* Main Action Buttons */}
             <div className="hero-action-pills">
-              <Link to="/customer/book" className="btn btn-primary btn-lg">
+              <button
+                type="button"
+                className="btn btn-primary btn-lg"
+                onClick={handleBookServiceClick}
+              >
                 <span>Book a Service</span>
                 <ArrowRight size={18} />
-              </Link>
+              </button>
               <Link to="/services" className="btn btn-secondary btn-lg">
                 Explore Services
               </Link>
@@ -130,7 +158,7 @@ export default function Home() {
               <ServiceCard
                 key={service.id}
                 service={service}
-                onSelect={() => navigate(`/customer/book?service=${service.id}`)}
+                onSelect={() => handleSelectService(service)}
               />
             ))}
           </div>
@@ -296,11 +324,14 @@ export default function Home() {
                 Join thousands of satisfied homeowners who trust HomeFix for dependable electrical, plumbing, carpentry, and appliance servicing.
               </p>
               <div className="cta-actions">
-                <Link to="/customer/book">
-                  <Button variant="accent" size="lg" rightIcon={<ArrowRight size={18} />}>
-                    Book a Service Now
-                  </Button>
-                </Link>
+                <Button
+                  variant="accent"
+                  size="lg"
+                  rightIcon={<ArrowRight size={18} />}
+                  onClick={handleBookServiceClick}
+                >
+                  Book a Service Now
+                </Button>
                 <Link to="/services">
                   <Button variant="outline" size="lg" className="cta-secondary-btn">
                     Explore All Services
