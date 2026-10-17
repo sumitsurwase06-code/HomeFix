@@ -23,12 +23,14 @@ import {
   DollarSign
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { bookingApi } from '../../services/api';
+import { bookingApi, priceChangeApi } from '../../services/api';
+import ProblemImageGallery from '../../components/booking/ProblemImageGallery';
 import './TechnicianPortal.css';
 
 export default function TechnicianBookings() {
   const { currentUser } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,6 +52,13 @@ export default function TechnicianBookings() {
         console.error('Error loading technician bookings:', err);
       } finally {
         setLoading(false);
+      }
+
+      try {
+        const props = await priceChangeApi.getAllProposals();
+        setProposals(props || []);
+      } catch (err) {
+        console.warn('Could not load proposals in technician bookings:', err);
       }
     }
     loadData();
@@ -349,6 +358,10 @@ export default function TechnicianBookings() {
             const total = Number(visitingFee) + Number(labor) + Number(materials);
             const payout = job.pricing?.technicianPayout || Math.round(total * 0.9);
 
+            const jobProposal = proposals.find(
+              (p) => p.bookingId === job.id || p.bookingReference === job.id
+            );
+
             return (
               <article key={job.id} className="my-job-card" aria-label={`Job ${job.bookingReference || job.id}`}>
                 {/* Card Top Row */}
@@ -362,10 +375,25 @@ export default function TechnicianBookings() {
                       {job.problemTitle || `${job.serviceCategory} Service`}
                     </h3>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex flex-col items-end gap-1">
                     <span className={`status-pill status-${job.status?.toLowerCase().replace(/\s+/g, '-')}`}>
                       {job.status}
                     </span>
+                    {jobProposal && jobProposal.status === 'PENDING_CUSTOMER_APPROVAL' && (
+                      <span className="status-pill text-[0.7rem] bg-amber-100 text-amber-900 border border-amber-300 font-semibold">
+                        ⏳ Approval Pending (₹{jobProposal.proposedCustomerTotal})
+                      </span>
+                    )}
+                    {jobProposal && jobProposal.status === 'APPROVED' && (
+                      <span className="status-pill text-[0.7rem] bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold">
+                        ✓ Approved (₹{jobProposal.proposedCustomerTotal})
+                      </span>
+                    )}
+                    {jobProposal && jobProposal.status === 'REJECTED' && (
+                      <span className="status-pill text-[0.7rem] bg-rose-100 text-rose-900 border border-rose-300 font-semibold">
+                        ✕ Revision Declined
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -555,26 +583,13 @@ export default function TechnicianBookings() {
                 </div>
               </div>
 
-              {/* Uploaded Photos Gallery */}
-              {selectedJobForDetails.problemImages && selectedJobForDetails.problemImages.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2 flex items-center gap-1.5">
-                    <Camera size={14} />
-                    <span>Customer-Uploaded Photographs ({selectedJobForDetails.problemImages.length})</span>
-                  </h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {selectedJobForDetails.problemImages.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`Evidence ${idx + 1}`}
-                        className="w-full h-20 rounded-lg object-cover border border-[var(--champagne-border)] cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => setActiveLightboxImg(img)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Uploaded Photos Gallery (3:4 Passport Aspect Ratio) */}
+              <ProblemImageGallery
+                images={selectedJobForDetails.problemImages || []}
+                title="Customer Problem Photos"
+                helperText="Review customer problem photos before accepting or dispatching."
+                emptyMessage="No problem photos attached."
+              />
 
               {/* Appointment & Customer Address */}
               <div className="grid grid-cols-2 gap-3">
@@ -607,6 +622,39 @@ export default function TechnicianBookings() {
                   </div>
                 </div>
               </div>
+
+              {/* Price Revision Status Notice in Modal */}
+              {(() => {
+                const modalProposal = proposals.find(
+                  (p) => p.bookingId === selectedJobForDetails.id || p.bookingReference === selectedJobForDetails.id
+                );
+                if (!modalProposal) return null;
+                const isPending = modalProposal.status === 'PENDING_CUSTOMER_APPROVAL';
+                const isApproved = modalProposal.status === 'APPROVED';
+
+                return (
+                  <div className={`p-3 rounded-xl border ${isPending ? 'bg-amber-50 border-amber-300' : isApproved ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-300'}`}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className={`text-xs font-bold uppercase tracking-wider ${isPending ? 'text-amber-900' : isApproved ? 'text-emerald-900' : 'text-rose-900'}`}>
+                        {isPending && '⏳ Price Revision Pending Customer Approval'}
+                        {isApproved && '✓ Price Revision Approved by Customer'}
+                        {!isPending && !isApproved && '✕ Price Revision Declined by Customer'}
+                      </span>
+                      <span className="text-xs font-mono font-bold">
+                        Proposed Total: ₹{modalProposal.proposedCustomerTotal}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] m-0">
+                      Reason: "{modalProposal.technicianReason}"
+                    </p>
+                    {modalProposal.customerRejectionReason && (
+                      <p className="text-xs text-rose-800 font-semibold mt-1 mb-0">
+                        Customer Feedback: "{modalProposal.customerRejectionReason}"
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Financial & Payout Summary */}
               <div className="p-3.5 bg-[var(--emerald-subtle)] border border-[rgba(6,78,59,0.2)] rounded-xl">
@@ -641,8 +689,10 @@ export default function TechnicianBookings() {
               <Link
                 to={`/technician/bookings/${selectedJobForDetails.id}`}
                 className="portal-btn portal-btn-outline portal-btn-sm"
+                onClick={() => setSelectedJobForDetails(null)}
+                title="View Full Job Diagnostic Details"
               >
-                <span>Full Diagnostics Page →</span>
+                <span>View Full Job Diagnostic Details →</span>
               </Link>
               {selectedJobForDetails.status === 'Accepted' && (
                 <button

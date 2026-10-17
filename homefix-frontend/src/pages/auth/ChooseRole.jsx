@@ -6,9 +6,7 @@ import {
   ShieldCheck,
   ArrowRight,
   ArrowLeft,
-  CalendarCheck,
-  HelpCircle,
-  ExternalLink
+  CalendarCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './ChooseRole.css';
@@ -19,6 +17,18 @@ export default function ChooseRole() {
   const [searchParams] = useSearchParams();
   const { isAuthenticated, userRole } = useAuth();
 
+  // Validate that a candidate URL is a safe internal relative path (no open redirect)
+  const isSafeInternalUrl = (url) => {
+    return Boolean(
+      url &&
+      typeof url === 'string' &&
+      url.startsWith('/') &&
+      !url.startsWith('//') &&
+      !url.includes('://') &&
+      !url.includes('\\')
+    );
+  };
+
   // Extract candidate return destination
   const candidateReturnTo =
     searchParams.get('returnTo') ||
@@ -26,27 +36,25 @@ export default function ChooseRole() {
       ? location.state.from.pathname + (location.state.from.search || '')
       : null);
 
-  // A return destination is ONLY valid if it is an active service booking flow (/customer/book...)
-  const isBookingFlow = Boolean(candidateReturnTo && candidateReturnTo.startsWith('/customer/book'));
-  const returnTo = isBookingFlow ? candidateReturnTo : null;
+  const returnTo = isSafeInternalUrl(candidateReturnTo) ? candidateReturnTo : null;
+  const isBookingFlow = Boolean(returnTo && returnTo.startsWith('/customer/book'));
 
   // If already authenticated, redirect to appropriate portal
   useEffect(() => {
     if (isAuthenticated && userRole) {
       if (userRole === 'admin') {
-        navigate('/admin/dashboard', { replace: true });
+        navigate(returnTo && returnTo.startsWith('/admin') ? returnTo : '/admin/dashboard', { replace: true });
       } else if (userRole === 'technician') {
-        navigate('/technician/dashboard', { replace: true });
+        navigate(returnTo && returnTo.startsWith('/technician') ? returnTo : '/technician/dashboard', { replace: true });
       } else {
-        // Customer: always redirect to public homepage ('/') unless in an active booking flow
-        navigate(returnTo || '/', { replace: true });
+        // Customer: restore authorized customer destination if present, else customer dashboard
+        navigate(returnTo && returnTo.startsWith('/customer') ? returnTo : '/customer/dashboard', { replace: true });
       }
     }
   }, [isAuthenticated, userRole, navigate, returnTo]);
 
   // Navigate to Page Two (Enter Credentials) with selected role
   const handleSelectRole = (role) => {
-    // Only pass returnTo if it is an active booking flow
     const query = returnTo ? `?returnTo=${encodeURIComponent(returnTo)}` : '';
     navigate(`/login/${role}${query}`, {
       state: returnTo ? { returnTo } : undefined,
@@ -56,7 +64,7 @@ export default function ChooseRole() {
   return (
     <div className="choose-role-page">
       <div className="choose-role-wrapper">
-        {/* Top Navigation Bar */}
+        {/* Top Navigation Bar with Back Action & HomeFix Logo */}
         <header className="choose-role-nav">
           <Link to="/" className="choose-role-back-link" title="Return to HomeFix Homepage">
             <ArrowLeft size={16} />
@@ -76,7 +84,6 @@ export default function ChooseRole() {
 
         {/* Hero Section */}
         <div className="choose-role-header text-center">
-          <span className="choose-role-eyebrow">PORTAL ACCESS</span>
           <h1 className="choose-role-title">Welcome to HomeFix</h1>
           <p className="choose-role-subtitle">
             Choose how you want to continue.
@@ -111,9 +118,8 @@ export default function ChooseRole() {
           >
             <div className="card-top-row">
               <div className="card-icon-circle customer-icon">
-                <User size={26} />
+                <User size={28} />
               </div>
-              <span className="card-role-badge">Homeowner</span>
             </div>
 
             <div className="card-body">
@@ -151,9 +157,8 @@ export default function ChooseRole() {
           >
             <div className="card-top-row">
               <div className="card-icon-circle technician-icon">
-                <Wrench size={26} />
+                <Wrench size={28} />
               </div>
-              <span className="card-role-badge">Service Partner</span>
             </div>
 
             <div className="card-body">
@@ -191,9 +196,8 @@ export default function ChooseRole() {
           >
             <div className="card-top-row">
               <div className="card-icon-circle admin-icon">
-                <ShieldCheck size={26} />
+                <ShieldCheck size={28} />
               </div>
-              <span className="card-role-badge">Operations</span>
             </div>
 
             <div className="card-body">

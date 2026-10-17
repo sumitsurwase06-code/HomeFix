@@ -16,12 +16,16 @@ import {
   Bell
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCustomerNotifications } from '../context/CustomerNotificationContext';
+import NotificationBell from '../components/notifications/NotificationBell';
+import PendingPriceBanner from '../components/notifications/PendingPriceBanner';
 import DevModeBar from '../components/common/DevModeBar';
 import './DashboardLayout.css';
 
 export default function CustomerLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { currentUser, logout, switchDemoRole } = useAuth();
+  const { pendingCount } = useCustomerNotifications();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -76,7 +80,12 @@ export default function CustomerLayout() {
             onClick={() => setIsSidebarOpen(false)}
           >
             <CalendarCheck size={18} />
-            <span>My Bookings</span>
+            <span className="flex-1">My Bookings</span>
+            {pendingCount > 0 && (
+              <span className="ml-auto px-1.5 py-0.5 text-[10px] font-bold bg-amber-200 text-amber-900 rounded-full">
+                {pendingCount}
+              </span>
+            )}
           </NavLink>
 
           <span className="sidebar-nav-title">Preferences</span>
@@ -143,13 +152,17 @@ export default function CustomerLayout() {
             <span className="topbar-page-title">Customer Portal</span>
           </div>
 
-          <div className="topbar-right">
+          <div className="topbar-right flex items-center gap-3">
+            <NotificationBell />
             <Link to="/" className="btn btn-outline btn-sm" title="Back to Public Site">
               <Home size={16} />
               <span>Public Site</span>
             </Link>
           </div>
         </header>
+
+        {/* Global Pending Price Approval Banner */}
+        <PendingPriceBanner />
 
         {/* Dynamic Nested Content */}
         <main className="dashboard-content">

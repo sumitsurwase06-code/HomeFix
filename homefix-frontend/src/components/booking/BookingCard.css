@@ -147,3 +147,64 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Pending Price Revision Highlight Styles */
+.booking-card.has-pending-pcr {
+  border: 1.5px solid #FCD34D;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFFDF5 100%);
+  box-shadow: 0 4px 18px rgba(217, 119, 6, 0.08);
+}
+
+.booking-card.has-pending-pcr:hover {
+  border-color: #F59E0B;
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.16);
+}
+
+.pcr-card-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #92400E;
+  background-color: #FEF3C7;
+  border: 1px solid #FCD34D;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  animation: pulseAmber 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseAmber {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.card-pcr-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius-sm, 10px);
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.78rem;
+  color: #78350F;
+  line-height: 1.4;
+}
+
+.card-pcr-notice-text {
+  flex: 1;
+}
+
+.price-proposed-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #B45309;
+  background-color: #FEF3C7;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 0.15rem;
+}
+

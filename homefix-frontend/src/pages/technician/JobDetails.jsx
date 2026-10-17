@@ -12,22 +12,27 @@ import {
   AlertCircle,
   Truck,
   Wrench,
-  Camera,
   Check,
   Copy,
   ExternalLink,
   DollarSign,
   X,
   ChevronRight,
-  ChevronLeft,
   Printer,
   Share2,
-  ZoomIn
+  Send,
+  Info,
+  History,
+  ShieldAlert,
+  RefreshCw
 } from 'lucide-react';
 import { DEMO_BOOKINGS } from '../../data/bookings';
-import { bookingApi } from '../../services/api';
+import { bookingApi, priceChangeApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import StatusBadge from '../../components/common/StatusBadge';
 import Modal from '../../components/common/Modal';
+import ProblemImageGallery from '../../components/booking/ProblemImageGallery';
+import Skeleton from '../../components/common/Skeleton';
 import './JobDetails.css';
 
 const LIFECYCLE_STEPS = [
@@ -51,72 +56,113 @@ const STATUS_PROGRESSION_OPTIONS = [
 
 export default function JobDetails() {
   const { id } = useParams();
+  const { currentUser } = useAuth();
 
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [currentStatus, setCurrentStatus] = useState('Accepted');
+  const [visitingFee, setVisitingFee] = useState(199);
   const [repairLabor, setRepairLabor] = useState(350);
   const [materialCharge, setMaterialCharge] = useState(150);
+  const [changeReason, setChangeReason] = useState('');
   const [statusNote, setStatusNote] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isSubmittingProposal, setIsSubmittingProposal] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
   const [toastMessage, setToastMessage] = useState(null);
 
-  // Modals & Lightbox states
-  const [activeLightboxImg, setActiveLightboxImg] = useState(null);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
+  // Price revision proposal states
+  const [pendingProposal, setPendingProposal] = useState(null);
+  const [proposalHistory, setProposalHistory] = useState([]);
+  const [proposalSuccessModal, setProposalSuccessModal] = useState(null);
+
+  // Modals states
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isInvoiceSummaryOpen, setIsInvoiceSummaryOpen] = useState(false);
   const [workVerifiedChecked, setWorkVerifiedChecked] = useState(false);
 
-  // Load Job details
+  // Load Job details, authorization check, and pricing history
   useEffect(() => {
     async function loadJob() {
+      if (!id) {
+        setLoadError({
+          type: 'MISSING_ID',
+          title: 'Missing Booking Reference',
+          message: 'No booking identifier was provided in the route path.',
+        });
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        const data = await bookingApi.getBookingById(id);
-        const found =
-          data ||
-          DEMO_BOOKINGS.find((b) => b.id === id || b.bookingReference === id) ||
-          DEMO_BOOKINGS[0];
+        setLoadError(null);
+
+        let found = null;
+        try {
+          found = await bookingApi.getBookingById(id);
+        } catch {
+          found = DEMO_BOOKINGS.find((b) => b.id === id || b.bookingReference === id);
+        }
+
+        if (!found) {
+          setLoadError({
+            type: 'NOT_FOUND',
+            title: 'Job Record Not Found',
+            message: `No active dispatch record could be retrieved for reference #${id}. It may have been archived, completed, or cancelled.`,
+          });
+          setJob(null);
+          return;
+        }
+
+        // Authorization check: Verify if booking belongs to another technician
+        if (
+          found.isOtherTechnician ||
+          (currentUser?.role === 'technician' && found.technicianId === 'TECH-999')
+        ) {
+          setLoadError({
+            type: 'UNAUTHORIZED',
+            title: 'Access Restricted: Assigned to Another Technician',
+            message: `This service dispatch (${found.bookingReference || id}) is assigned to another technician partner (${found.technicianName || 'Partner ID: ' + found.technicianId}). You do not have permission to view or manage another technician's private diagnostic workspace.`,
+          });
+          setJob(null);
+          return;
+        }
 
         setJob(found);
         setCurrentStatus(found?.status || 'Accepted');
+        setVisitingFee(found?.pricing?.visitingCharge ?? 199);
         setRepairLabor(found?.pricing?.repairLabor ?? 350);
         setMaterialCharge(found?.pricing?.materialCharge ?? 120);
+
         if (found?.statusHistory?.length) {
           const latestNote = found.statusHistory[found.statusHistory.length - 1]?.note;
           if (latestNote) setStatusNote(latestNote);
         }
+
+        // Fetch price change history and check for pending proposal
+        try {
+          const history = await priceChangeApi.getBookingHistory(found?.id || id);
+          setProposalHistory(history || []);
+          const pending = (history || []).find((p) => p.status === 'PENDING_CUSTOMER_APPROVAL');
+          setPendingProposal(pending || null);
+        } catch (err) {
+          console.warn('Could not load proposal history', err);
+        }
       } catch (err) {
         console.error('Error loading job details:', err);
+        setLoadError({
+          type: 'API_ERROR',
+          title: 'Failed to Retrieve Job Diagnostics',
+          message: 'Unable to communicate with the service dispatch server. Please check your network connection and try again.',
+        });
       } finally {
         setLoading(false);
       }
     }
     loadJob();
-  }, [id]);
-
-  // Handle ESC and Arrow keys for Lightbox navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!activeLightboxImg || !job?.problemImages?.length) return;
-
-      if (e.key === 'Escape') {
-        setActiveLightboxImg(null);
-      } else if (e.key === 'ArrowRight') {
-        const nextIdx = (lightboxIndex + 1) % job.problemImages.length;
-        setLightboxIndex(nextIdx);
-        setActiveLightboxImg(job.problemImages[nextIdx]);
-      } else if (e.key === 'ArrowLeft') {
-        const prevIdx =
-          (lightboxIndex - 1 + job.problemImages.length) % job.problemImages.length;
-        setLightboxIndex(prevIdx);
-        setActiveLightboxImg(job.problemImages[prevIdx]);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeLightboxImg, lightboxIndex, job]);
+  }, [id, currentUser]);
 
   // Toast feedback helper
   const showToast = (msg) => {
@@ -130,19 +176,31 @@ export default function JobDetails() {
     showToast(`${label} copied to clipboard!`);
   };
 
-  // Financial calculations
-  const visitingFee = job?.pricing?.visitingCharge ?? 199;
-  const calculatedTotal = useMemo(() => {
-    return Number(visitingFee) + Number(repairLabor || 0) + Number(materialCharge || 0);
-  }, [visitingFee, repairLabor, materialCharge]);
+  // Currently approved baseline charges (unchanged until customer approval)
+  const approvedVisiting = job?.pricing?.visitingCharge ?? 199;
+  const approvedLabor = job?.pricing?.repairLabor ?? 0;
+  const approvedMaterial = job?.pricing?.materialCharge ?? 0;
+  const approvedTotal = job?.pricing?.customerTotal ?? (approvedVisiting + approvedLabor + approvedMaterial);
+  const approvedPlatformFee = job?.pricing?.platformFee ?? Math.round(approvedTotal * 0.10);
+  const approvedTechnicianPayout = job?.pricing?.technicianPayout ?? (approvedTotal - approvedPlatformFee);
 
-  const platformFee = useMemo(() => {
-    return Math.round(calculatedTotal * 0.10);
-  }, [calculatedTotal]);
+  // Proposed charges dynamically calculated
+  const proposedVisiting = Number(visitingFee || 0);
+  const proposedLabor = Number(repairLabor || 0);
+  const proposedMaterial = Number(materialCharge || 0);
+  const proposedTotal = proposedVisiting + proposedLabor + proposedMaterial;
 
-  const technicianPayout = useMemo(() => {
-    return calculatedTotal - platformFee;
-  }, [calculatedTotal, platformFee]);
+  const diffAmount = proposedTotal - approvedTotal;
+  const diffPercent = approvedTotal > 0 ? ((diffAmount / approvedTotal) * 100).toFixed(1) : '0.0';
+
+  const proposedPlatformFee = Math.round(proposedTotal * 0.10);
+  const proposedTechnicianPayout = proposedTotal - proposedPlatformFee;
+
+  const isPriceModified = (
+    proposedVisiting !== approvedVisiting ||
+    proposedLabor !== approvedLabor ||
+    proposedMaterial !== approvedMaterial
+  );
 
   const [todayDateStr] = useState(() =>
     new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -239,12 +297,97 @@ export default function JobDetails() {
     }
   };
 
-  // Save Quotation, Pricing & Work notes
-  const handleSaveQuotation = async (e) => {
+  // Reset proposed inputs to currently approved baseline
+  const handleResetPricingToApproved = () => {
+    setVisitingFee(approvedVisiting);
+    setRepairLabor(approvedLabor);
+    setMaterialCharge(approvedMaterial);
+    setChangeReason('');
+    setFormErrors({});
+  };
+
+  // Submit revised pricing proposal for customer approval
+  const handleSubmitPriceChange = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    if (pendingProposal) {
+      showToast('A price revision request is already awaiting customer approval.');
+      return;
+    }
+
+    if (job.status === 'Completed' || job.status === 'Cancelled') {
+      showToast('Cannot modify charges for completed or cancelled bookings.');
+      return;
+    }
+
+    if (job.paymentStatus === 'Paid') {
+      showToast('Payment is already settled for this booking. Quotation cannot be modified.');
+      return;
+    }
+
+    const errors = {};
+
+    if (isNaN(proposedVisiting) || proposedVisiting < 0) {
+      errors.visitingFee = 'Visiting fee must be a valid, non-negative monetary amount.';
+    }
+
+    if (isNaN(proposedLabor) || proposedLabor < 0) {
+      errors.repairLabor = 'Repair labor must be a valid, non-negative monetary amount.';
+    }
+
+    if (isNaN(proposedMaterial) || proposedMaterial < 0) {
+      errors.materialCharge = 'Material charges must be a valid, non-negative monetary amount.';
+    }
+
+    if (!changeReason || !changeReason.trim()) {
+      errors.changeReason = 'Please enter a clear explanation for this price revision for the customer.';
+    }
+
+    if (!isPriceModified) {
+      errors.general = 'No charges were modified. Please adjust at least one charge before submitting.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      const firstMsg = Object.values(errors)[0];
+      showToast(firstMsg);
+      return;
+    }
+
+    setFormErrors({});
+    setIsSubmittingProposal(true);
+
+    try {
+      const result = await priceChangeApi.submitProposal(job.id, {
+        visitingCharge: proposedVisiting,
+        laborCharge: proposedLabor,
+        materialCharge: proposedMaterial,
+        reason: changeReason.trim(),
+      });
+
+      setPendingProposal(result);
+      setProposalHistory((prev) => [result, ...prev]);
+      setChangeReason('');
+      setFormErrors({});
+      setProposalSuccessModal(result);
+      showToast('Price revision proposal submitted! Customer has been notified for approval.');
+    } catch (err) {
+      console.error('Error submitting price proposal:', err);
+      showToast(err.message || 'Failed to submit price change request.');
+    } finally {
+      setIsSubmittingProposal(false);
+    }
+  };
+
+  // Routine update of status and work notes without altering customer invoice
+  const handleSaveNotesOnly = async (e) => {
     if (e) e.preventDefault();
     setIsUpdating(true);
     try {
-      const noteToSave = statusNote || 'Quotation & work progress updated by technician.';
+      const noteToSave = statusNote || 'Work progress notes recorded by technician.';
       await bookingApi.updateStatus(job.id, currentStatus, noteToSave);
 
       const updatedHistory = [
@@ -256,32 +399,17 @@ export default function JobDetails() {
         ...prev,
         status: currentStatus,
         statusHistory: updatedHistory,
-        pricing: {
-          ...prev.pricing,
-          visitingCharge: visitingFee,
-          repairLabor: Number(repairLabor),
-          materialCharge: Number(materialCharge),
-          customerTotal: calculatedTotal,
-          platformFee: platformFee,
-          technicianPayout: technicianPayout
-        }
       }));
-      showToast('Quotation breakdown and work notes saved!');
+      showToast('Status and technician work notes saved!');
     } catch (err) {
       console.error(err);
-      showToast('Failed to save quotation.');
+      showToast('Failed to save status notes.');
     } finally {
       setIsUpdating(false);
     }
   };
 
-  // Open Lightbox
-  const openLightbox = (index) => {
-    if (job?.problemImages?.[index]) {
-      setLightboxIndex(index);
-      setActiveLightboxImg(job.problemImages[index]);
-    }
-  };
+
 
   // Quick Chips for Technician Work Notes
   const handleAddNoteChip = (chipText) => {
@@ -290,30 +418,114 @@ export default function JobDetails() {
 
   if (loading) {
     return (
-      <div className="job-workspace-container">
-        <div className="job-card text-center py-16">
-          <div className="inline-block animate-spin rounded-full h-9 w-9 border-b-2 border-[var(--emerald-ink)] mb-3"></div>
-          <p className="text-sm font-semibold text-[var(--emerald-ink)]">
-            Loading dispatch record & diagnostic workspace...
-          </p>
+      <div className="job-workspace-container" aria-busy="true" aria-label="Loading job diagnostic workspace">
+        {/* Breadcrumb Skeleton */}
+        <div className="flex items-center gap-2 mb-4">
+          <Skeleton width="130px" height="28px" borderRadius="9999px" />
+          <Skeleton width="90px" height="28px" borderRadius="9999px" />
+        </div>
+
+        {/* Header Skeleton */}
+        <div className="job-header-card animate-pulse">
+          <div className="space-y-2 flex-1">
+            <div className="flex gap-2">
+              <Skeleton width="120px" height="24px" borderRadius="8px" />
+              <Skeleton width="100px" height="24px" borderRadius="8px" />
+              <Skeleton width="90px" height="24px" borderRadius="8px" />
+            </div>
+            <Skeleton width="60%" height="32px" borderRadius="8px" />
+            <Skeleton width="40%" height="18px" borderRadius="6px" />
+          </div>
+          <div className="flex gap-3">
+            <Skeleton width="150px" height="42px" borderRadius="10px" />
+            <Skeleton width="170px" height="42px" borderRadius="10px" />
+          </div>
+        </div>
+
+        {/* 2-Column Grid Skeletons */}
+        <div className="job-workspace-grid">
+          <div className="job-main-column space-y-4">
+            <div className="job-card p-6 space-y-4">
+              <Skeleton width="40%" height="24px" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Skeleton height="90px" borderRadius="12px" />
+                <Skeleton height="90px" borderRadius="12px" />
+              </div>
+            </div>
+            <div className="job-card p-6 space-y-3">
+              <Skeleton width="35%" height="24px" />
+              <Skeleton height="70px" borderRadius="10px" />
+            </div>
+            <div className="job-card p-6 space-y-3">
+              <Skeleton width="45%" height="24px" />
+              <div className="grid grid-cols-3 gap-3">
+                <Skeleton height="160px" borderRadius="12px" />
+                <Skeleton height="160px" borderRadius="12px" />
+                <Skeleton height="160px" borderRadius="12px" />
+              </div>
+            </div>
+          </div>
+          <div className="job-side-column space-y-4">
+            <div className="job-card p-6 space-y-4">
+              <Skeleton width="50%" height="24px" />
+              <Skeleton height="100px" borderRadius="12px" />
+              <Skeleton height="45px" borderRadius="10px" />
+            </div>
+            <div className="job-card p-6 space-y-4">
+              <Skeleton width="60%" height="24px" />
+              <Skeleton height="150px" borderRadius="12px" />
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (!job) {
+  if (loadError || !job) {
+    const errorDetails = loadError || {
+      type: 'NOT_FOUND',
+      title: 'Job Record Not Found',
+      message: `No active dispatch record could be retrieved for reference #${id}.`,
+    };
+    const isUnauthorized = errorDetails.type === 'UNAUTHORIZED';
+
     return (
       <div className="job-workspace-container">
-        <div className="job-card text-center py-16">
-          <AlertCircle size={40} className="text-amber-600 mx-auto mb-3" />
-          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">Job Record Not Found</h2>
-          <p className="text-sm text-[var(--text-muted)] max-w-md mx-auto mb-5">
-            No active dispatch record could be retrieved for reference #{id}.
+        <div className="job-card text-center py-12 px-6 max-w-xl mx-auto my-8">
+          <div
+            className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+              isUnauthorized
+                ? 'bg-red-50 text-red-600 border border-red-200'
+                : 'bg-amber-50 text-amber-600 border border-amber-200'
+            }`}
+          >
+            {isUnauthorized ? <ShieldAlert size={30} /> : <AlertCircle size={30} />}
+          </div>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">{errorDetails.title}</h2>
+          <p className="text-sm text-[var(--text-muted)] leading-relaxed mb-6">
+            {errorDetails.message}
           </p>
-          <Link to="/technician/bookings" className="job-back-link">
-            <ArrowLeft size={14} />
-            <span>Return to Assigned Jobs</span>
-          </Link>
+
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Link
+              to="/technician/bookings"
+              className="job-back-link"
+              title="Return to My Jobs"
+            >
+              <ArrowLeft size={15} />
+              <span>Return to Assigned Jobs</span>
+            </Link>
+            {errorDetails.type === 'API_ERROR' && (
+              <button
+                type="button"
+                className="job-back-link"
+                onClick={() => window.location.reload()}
+              >
+                <RefreshCw size={14} />
+                <span>Retry Connection</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
@@ -336,12 +548,25 @@ export default function JobDetails() {
 
       {/* Top Navigation & Breadcrumb */}
       <nav className="job-workspace-nav" aria-label="Job Navigation">
-        <Link to="/technician/bookings" className="job-back-link">
-          <ArrowLeft size={15} />
-          <span>Back to My Jobs</span>
-        </Link>
+        <div className="job-breadcrumb-trail">
+          <Link to="/technician/dashboard" className="breadcrumb-nav-link">
+            Technician Dashboard
+          </Link>
+          <span className="breadcrumb-nav-separator">›</span>
+          <Link to="/technician/bookings" className="breadcrumb-nav-link">
+            My Jobs
+          </Link>
+          <span className="breadcrumb-nav-separator">›</span>
+          <span className="breadcrumb-nav-current">
+            Job Details ({job.bookingReference || job.id})
+          </span>
+        </div>
 
         <div className="job-quick-nav-actions">
+          <Link to="/technician/bookings" className="job-back-link" title="Return to My Jobs">
+            <ArrowLeft size={15} />
+            <span>Back to My Jobs</span>
+          </Link>
           <button
             type="button"
             className="job-back-link"
@@ -560,75 +785,14 @@ export default function JobDetails() {
             </div>
           </div>
 
-          {/* 3. Customer-Uploaded Problem Photographs Card (Gallery & Lightbox) */}
+          {/* 3. Customer-Uploaded Problem Photographs Card (Standardized 3:4 Gallery & Lightbox) */}
           <div className="job-card">
-            <div className="job-card-header">
-              <div className="job-card-title-wrap">
-                <div className="job-card-icon-badge">
-                  <Camera size={17} />
-                </div>
-                <h2 className="job-card-title">Customer Problem Photographs</h2>
-              </div>
-              <span className="job-card-badge">
-                {job.problemImages?.length || 0} {job.problemImages?.length === 1 ? 'image' : 'images'}
-              </span>
-            </div>
-
-            <div className="photos-grid-wrapper">
-              {job.problemImages && job.problemImages.length > 0 ? (
-                <div>
-                  <p className="text-xs text-[var(--text-muted)] mb-3">
-                    Click any thumbnail below to open the full high-resolution diagnostic lightbox inspection view.
-                  </p>
-                  <div className="photos-grid">
-                    {job.problemImages.map((imgUrl, idx) => (
-                      <div
-                        key={idx}
-                        className="photo-thumbnail-card"
-                        onClick={() => openLightbox(idx)}
-                        tabIndex={0}
-                        role="button"
-                        aria-label={`Inspect problem photograph ${idx + 1}`}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            openLightbox(idx);
-                          }
-                        }}
-                      >
-                        <img
-                          src={imgUrl}
-                          alt={`Customer problem upload ${idx + 1}`}
-                          className="photo-thumbnail-img"
-                          onError={(e) => {
-                            e.target.src =
-                              'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=500';
-                          }}
-                        />
-                        <div className="photo-thumbnail-overlay">
-                          <span className="photo-badge-label">Photo #{idx + 1}</span>
-                          <span className="photo-zoom-icon">
-                            <ZoomIn size={14} />
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="photos-empty-state">
-                  <div className="photos-empty-icon">
-                    <Camera size={20} />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-[var(--text-primary)] m-0">No photos uploaded</h4>
-                    <p className="photos-empty-text">
-                      The customer did not attach diagnostic photos for this service request. Perform on-site visual diagnosis.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+            <ProblemImageGallery
+              images={job.problemImages || []}
+              title="Customer Problem Photographs"
+              helperText="Review customer problem photos before accepting the request or beginning on-site repair."
+              emptyMessage="No problem photos attached."
+            />
           </div>
 
           {/* 4. Service Lifecycle Progress Timeline Card */}
@@ -810,176 +974,527 @@ export default function JobDetails() {
             </div>
           </div>
 
-          {/* Section B: Quotation & Financial Settlement Card */}
-          <form onSubmit={handleSaveQuotation} className="quotation-card">
+          {/* Section B: Quotation & Customer Approval Workflow Card */}
+          <div className="quotation-card">
             <div className="job-card-header">
               <div className="job-card-title-wrap">
                 <div className="job-card-icon-badge">
                   <DollarSign size={17} />
                 </div>
-                <h2 className="job-card-title">Quotation & Settlement</h2>
+                <h2 className="job-card-title">Quotation & Pricing Workflow</h2>
               </div>
-              <span className="job-card-badge">Financials</span>
+              {pendingProposal ? (
+                <span className="status-badge-pending-pcr">
+                  <Clock size={12} />
+                  <span>Awaiting Customer Approval</span>
+                </span>
+              ) : (
+                <span className="job-card-badge">Financials</span>
+              )}
             </div>
 
-            {/* Hero Net Payout Card */}
+            {/* Awaiting Customer Approval Banner */}
+            {pendingProposal && (
+              <div className="pending-pcr-banner">
+                <div className="pending-pcr-header">
+                  <div className="pending-pcr-title-row">
+                    <Clock size={16} className="text-amber-800" />
+                    <span className="pending-pcr-title">Pending Customer Decision</span>
+                  </div>
+                  <span className="pending-pcr-date">
+                    {new Date(pendingProposal.createdAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+                <p className="pending-pcr-desc">
+                  You submitted a proposed revision of <strong>₹{pendingProposal.proposedCustomerTotal}</strong> (Previous: ₹{pendingProposal.originalCustomerTotal}).
+                  The customer has been notified and must approve before the invoice is updated.
+                </p>
+                <div className="pending-pcr-reason-box">
+                  <span className="pending-pcr-reason-label">Technician Reason:</span>
+                  <p className="pending-pcr-reason-text">"{pendingProposal.technicianReason}"</p>
+                </div>
+                <div className="pending-pcr-notice">
+                  <Info size={13} />
+                  <span>Submitting a new revision is paused until customer responds to this request.</span>
+                </div>
+              </div>
+            )}
+
+            {/* Hero Net Payout Card (Calculated from Proposed or Approved) */}
             <div className="payout-hero-banner">
-              <span className="payout-hero-caption">Your Estimated Net Payout</span>
+              <span className="payout-hero-caption">
+                {isPriceModified ? 'Proposed Net Payout (Post-Approval)' : 'Your Approved Net Payout'}
+              </span>
               <div className="payout-hero-amount-row">
                 <span className="payout-hero-currency">₹</span>
-                <span className="payout-hero-amount">{technicianPayout.toLocaleString()}</span>
+                <span className="payout-hero-amount">
+                  {(isPriceModified ? proposedTechnicianPayout : approvedTechnicianPayout).toLocaleString()}
+                </span>
+                {isPriceModified && diffAmount !== 0 && (
+                  <span className={`payout-hero-diff ${diffAmount > 0 ? 'text-emerald-300' : 'text-amber-300'}`}>
+                    ({diffAmount > 0 ? '+' : ''}₹{diffAmount} / {diffPercent}%)
+                  </span>
+                )}
               </div>
               <span className="payout-hero-subtext">
-                (Customer Total: ₹{calculatedTotal} less 10% platform fee)
+                (Customer Total: ₹{isPriceModified ? proposedTotal : approvedTotal} less 10% platform fee)
               </span>
             </div>
 
-            {/* Pricing Form Fields */}
-            <div className="pricing-form-fields">
-              {/* Doorstep Visiting Fee (Fixed) */}
-              <div className="pricing-field-group">
-                <div className="pricing-field-label-row">
-                  <label className="pricing-field-label">Doorstep Visiting Fee</label>
-                  <span className="pricing-field-fixed-pill">Fixed Rate</span>
+            {/* Editable Pricing Form Fields */}
+            <form className="pricing-workflow-form" onSubmit={handleSubmitPriceChange} noValidate>
+              {formErrors.general && (
+                <div className="pricing-general-error" role="alert">
+                  {formErrors.general}
                 </div>
-                <div className="pricing-currency-input-wrap">
-                  <span className="pricing-currency-symbol">₹</span>
-                  <input
-                    type="text"
-                    readOnly
-                    className="pricing-currency-input bg-[#FAF6EF] cursor-not-allowed"
-                    value={visitingFee}
+              )}
+
+              <div className="pricing-form-fields">
+                {/* Doorstep Visiting / Inspection Fee (Editable) */}
+                <div className="pricing-field-group">
+                  <div className="pricing-field-label-row">
+                    <label htmlFor="visiting-fee-input" className="pricing-field-label">
+                      Visiting / Inspection Fee
+                    </label>
+                    <span className="text-xs text-[var(--text-muted)]">Base Doorstep Rate</span>
+                  </div>
+                  <div className="pricing-currency-input-wrap">
+                    <span className="pricing-currency-symbol">₹</span>
+                    <input
+                      id="visiting-fee-input"
+                      name="visitingCharge"
+                      type="number"
+                      min="0"
+                      step="any"
+                      disabled={!!pendingProposal || job.status === 'Completed' || job.paymentStatus === 'Paid'}
+                      className={`pricing-currency-input ${formErrors.visitingFee ? 'has-error' : ''}`}
+                      value={visitingFee}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : Number(e.target.value);
+                        setVisitingFee(val);
+                        if (formErrors.visitingFee || formErrors.general) {
+                          setFormErrors((prev) => ({ ...prev, visitingFee: null, general: null }));
+                        }
+                      }}
+                    />
+                  </div>
+                  {formErrors.visitingFee && (
+                    <span className="pricing-field-error">{formErrors.visitingFee}</span>
+                  )}
+                  {!pendingProposal && (
+                    <div className="pricing-quick-steppers">
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setVisitingFee((prev) => Math.max(0, prev - 50));
+                          if (formErrors.visitingFee || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, visitingFee: null, general: null }));
+                          }
+                        }}
+                      >
+                        - ₹50
+                      </button>
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setVisitingFee((prev) => prev + 50);
+                          if (formErrors.visitingFee || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, visitingFee: null, general: null }));
+                          }
+                        }}
+                      >
+                        + ₹50
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Repair Labor Charges (Editable) */}
+                <div className="pricing-field-group">
+                  <div className="pricing-field-label-row">
+                    <label htmlFor="repair-labor-input" className="pricing-field-label">
+                      Repair Labor Charges
+                    </label>
+                    <span className="text-xs text-[var(--text-muted)]">Labor & Diagnostics</span>
+                  </div>
+                  <div className="pricing-currency-input-wrap">
+                    <span className="pricing-currency-symbol">₹</span>
+                    <input
+                      id="repair-labor-input"
+                      name="laborCharge"
+                      type="number"
+                      min="0"
+                      step="any"
+                      disabled={!!pendingProposal || job.status === 'Completed' || job.paymentStatus === 'Paid'}
+                      className={`pricing-currency-input ${formErrors.repairLabor ? 'has-error' : ''}`}
+                      value={repairLabor}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : Number(e.target.value);
+                        setRepairLabor(val);
+                        if (formErrors.repairLabor || formErrors.general) {
+                          setFormErrors((prev) => ({ ...prev, repairLabor: null, general: null }));
+                        }
+                      }}
+                    />
+                  </div>
+                  {formErrors.repairLabor && (
+                    <span className="pricing-field-error">{formErrors.repairLabor}</span>
+                  )}
+                  {!pendingProposal && (
+                    <div className="pricing-quick-steppers">
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setRepairLabor((prev) => Math.max(0, prev - 50));
+                          if (formErrors.repairLabor || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, repairLabor: null, general: null }));
+                          }
+                        }}
+                      >
+                        - ₹50
+                      </button>
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setRepairLabor((prev) => prev + 50);
+                          if (formErrors.repairLabor || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, repairLabor: null, general: null }));
+                          }
+                        }}
+                      >
+                        + ₹50
+                      </button>
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setRepairLabor((prev) => prev + 100);
+                          if (formErrors.repairLabor || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, repairLabor: null, general: null }));
+                          }
+                        }}
+                      >
+                        + ₹100
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Materials & Spare Parts (Editable) */}
+                <div className="pricing-field-group">
+                  <div className="pricing-field-label-row">
+                    <label htmlFor="materials-input" className="pricing-field-label">
+                      Materials & Spare Parts Charges
+                    </label>
+                    <span className="text-xs text-[var(--text-muted)]">Hardware / Consumables</span>
+                  </div>
+                  <div className="pricing-currency-input-wrap">
+                    <span className="pricing-currency-symbol">₹</span>
+                    <input
+                      id="materials-input"
+                      name="materialCharge"
+                      type="number"
+                      min="0"
+                      step="any"
+                      disabled={!!pendingProposal || job.status === 'Completed' || job.paymentStatus === 'Paid'}
+                      className={`pricing-currency-input ${formErrors.materialCharge ? 'has-error' : ''}`}
+                      value={materialCharge}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? 0 : Number(e.target.value);
+                        setMaterialCharge(val);
+                        if (formErrors.materialCharge || formErrors.general) {
+                          setFormErrors((prev) => ({ ...prev, materialCharge: null, general: null }));
+                        }
+                      }}
+                    />
+                  </div>
+                  {formErrors.materialCharge && (
+                    <span className="pricing-field-error">{formErrors.materialCharge}</span>
+                  )}
+                  {!pendingProposal && (
+                    <div className="pricing-quick-steppers">
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setMaterialCharge((prev) => Math.max(0, prev - 50));
+                          if (formErrors.materialCharge || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, materialCharge: null, general: null }));
+                          }
+                        }}
+                      >
+                        - ₹50
+                      </button>
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setMaterialCharge((prev) => prev + 50);
+                          if (formErrors.materialCharge || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, materialCharge: null, general: null }));
+                          }
+                        }}
+                      >
+                        + ₹50
+                      </button>
+                      <button
+                        type="button"
+                        className="stepper-micro-btn"
+                        onClick={() => {
+                          setMaterialCharge((prev) => prev + 100);
+                          if (formErrors.materialCharge || formErrors.general) {
+                            setFormErrors((prev) => ({ ...prev, materialCharge: null, general: null }));
+                          }
+                        }}
+                      >
+                        + ₹100
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Reason for Price Change Textarea */}
+                <div className="pricing-field-group">
+                  <div className="pricing-field-label-row">
+                    <label htmlFor="price-change-reason" className="pricing-field-label">
+                      Reason for Price Revision {isPriceModified && <span className="text-red-500">*</span>}
+                    </label>
+                    <span className="text-xs text-[var(--text-muted)]">Sent to customer for approval</span>
+                  </div>
+                  <textarea
+                    id="price-change-reason"
+                    name="changeReason"
+                    rows="2"
+                    disabled={!!pendingProposal || job.status === 'Completed' || job.paymentStatus === 'Paid'}
+                    className={`pricing-reason-textarea ${formErrors.changeReason ? 'has-error' : ''}`}
+                    placeholder={
+                      isPriceModified
+                        ? "State specifically why charges changed (e.g., replaced brass valve, extra wiring labor)..."
+                        : "Modify charges above to submit a price change request."
+                    }
+                    value={changeReason}
+                    onChange={(e) => {
+                      setChangeReason(e.target.value);
+                      if (formErrors.changeReason) {
+                        setFormErrors((prev) => ({ ...prev, changeReason: null }));
+                      }
+                    }}
                   />
+                  {formErrors.changeReason && (
+                    <span className="pricing-field-error">{formErrors.changeReason}</span>
+                  )}
                 </div>
               </div>
 
-              {/* Repair Labor Charge */}
-              <div className="pricing-field-group">
-                <div className="pricing-field-label-row">
-                  <label htmlFor="repair-labor-input" className="pricing-field-label">
-                    Repair Labor Charge
-                  </label>
-                  <span className="text-xs text-[var(--text-muted)]">Labor & Diagnostic</span>
-                </div>
-                <div className="pricing-currency-input-wrap">
-                  <span className="pricing-currency-symbol">₹</span>
-                  <input
-                    id="repair-labor-input"
-                    type="number"
-                    min="0"
-                    step="10"
-                    className="pricing-currency-input"
-                    value={repairLabor}
-                    onChange={(e) => setRepairLabor(Number(e.target.value))}
-                  />
-                </div>
-                <div className="pricing-quick-steppers">
-                  <button
-                    type="button"
-                    className="stepper-micro-btn"
-                    onClick={() => setRepairLabor((prev) => Math.max(0, prev - 50))}
-                  >
-                    - ₹50
-                  </button>
-                  <button
-                    type="button"
-                    className="stepper-micro-btn"
-                    onClick={() => setRepairLabor((prev) => prev + 50)}
-                  >
-                    + ₹50
-                  </button>
-                  <button
-                    type="button"
-                    className="stepper-micro-btn"
-                    onClick={() => setRepairLabor((prev) => prev + 100)}
-                  >
-                    + ₹100
-                  </button>
-                </div>
+              {/* Itemized Comparison & Payout Ledger Table */}
+              <div className="comparison-ledger-table-wrap">
+                <span className="comparison-ledger-title">
+                  {isPriceModified ? 'Price Comparison & Proposed Invoice' : 'Approved Active Invoice'}
+                </span>
+                <table className="comparison-table">
+                  <thead>
+                    <tr>
+                      <th>Charge Item</th>
+                      <th className="text-right">Approved</th>
+                      <th className="text-right">Proposed</th>
+                      <th className="text-right">Diff</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Visiting Fee</td>
+                      <td className="text-right">₹{approvedVisiting}</td>
+                      <td className="text-right font-medium">₹{proposedVisiting}</td>
+                      <td className="text-right">
+                        {proposedVisiting - approvedVisiting !== 0 ? (
+                          <span className={proposedVisiting > approvedVisiting ? 'text-amber-700 font-semibold' : 'text-emerald-700 font-semibold'}>
+                            {proposedVisiting > approvedVisiting ? '+' : ''}₹{proposedVisiting - approvedVisiting}
+                          </span>
+                        ) : '—'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Repair Labor</td>
+                      <td className="text-right">₹{approvedLabor}</td>
+                      <td className="text-right font-medium">₹{proposedLabor}</td>
+                      <td className="text-right">
+                        {proposedLabor - approvedLabor !== 0 ? (
+                          <span className={proposedLabor > approvedLabor ? 'text-amber-700 font-semibold' : 'text-emerald-700 font-semibold'}>
+                            {proposedLabor > approvedLabor ? '+' : ''}₹{proposedLabor - approvedLabor}
+                          </span>
+                        ) : '—'}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Materials & Parts</td>
+                      <td className="text-right">₹{approvedMaterial}</td>
+                      <td className="text-right font-medium">₹{proposedMaterial}</td>
+                      <td className="text-right">
+                        {proposedMaterial - approvedMaterial !== 0 ? (
+                          <span className={proposedMaterial > approvedMaterial ? 'text-amber-700 font-semibold' : 'text-emerald-700 font-semibold'}>
+                            {proposedMaterial > approvedMaterial ? '+' : ''}₹{proposedMaterial - approvedMaterial}
+                          </span>
+                        ) : '—'}
+                      </td>
+                    </tr>
+                    <tr className="row-total">
+                      <td>Customer Total</td>
+                      <td className="text-right">₹{approvedTotal}</td>
+                      <td className="text-right font-bold text-[var(--emerald-ink)]">₹{proposedTotal}</td>
+                      <td className="text-right font-bold">
+                        {diffAmount !== 0 ? (
+                          <span className={diffAmount > 0 ? 'text-amber-800' : 'text-emerald-800'}>
+                            {diffAmount > 0 ? '+' : ''}₹{diffAmount} ({diffPercent}%)
+                          </span>
+                        ) : '₹0'}
+                      </td>
+                    </tr>
+                    <tr className="row-subdued">
+                      <td>Platform Fee (10%)</td>
+                      <td className="text-right">- ₹{approvedPlatformFee}</td>
+                      <td className="text-right">- ₹{proposedPlatformFee}</td>
+                      <td className="text-right">—</td>
+                    </tr>
+                    <tr className="row-payout">
+                      <td>Tech Net Payout</td>
+                      <td className="text-right">₹{approvedTechnicianPayout}</td>
+                      <td className="text-right font-bold text-emerald-800">₹{proposedTechnicianPayout}</td>
+                      <td className="text-right font-semibold">
+                        {proposedTechnicianPayout - approvedTechnicianPayout !== 0 ? (
+                          <span>{proposedTechnicianPayout > approvedTechnicianPayout ? '+' : ''}₹{proposedTechnicianPayout - approvedTechnicianPayout}</span>
+                        ) : '—'}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
 
-              {/* Materials & Spare Parts */}
-              <div className="pricing-field-group">
-                <div className="pricing-field-label-row">
-                  <label htmlFor="materials-input" className="pricing-field-label">
-                    Materials & Spare Parts
-                  </label>
-                  <span className="text-xs text-[var(--text-muted)]">Hardware / Consumables</span>
-                </div>
-                <div className="pricing-currency-input-wrap">
-                  <span className="pricing-currency-symbol">₹</span>
-                  <input
-                    id="materials-input"
-                    type="number"
-                    min="0"
-                    step="10"
-                    className="pricing-currency-input"
-                    value={materialCharge}
-                    onChange={(e) => setMaterialCharge(Number(e.target.value))}
-                  />
-                </div>
-                <div className="pricing-quick-steppers">
-                  <button
-                    type="button"
-                    className="stepper-micro-btn"
-                    onClick={() => setMaterialCharge((prev) => Math.max(0, prev - 50))}
-                  >
-                    - ₹50
-                  </button>
-                  <button
-                    type="button"
-                    className="stepper-micro-btn"
-                    onClick={() => setMaterialCharge((prev) => prev + 50)}
-                  >
-                    + ₹50
-                  </button>
-                  <button
-                    type="button"
-                    className="stepper-micro-btn"
-                    onClick={() => setMaterialCharge((prev) => prev + 100)}
-                  >
-                    + ₹100
-                  </button>
-                </div>
-              </div>
-            </div>
+              {/* Action Buttons */}
+              <div className="pcr-actions-container">
+                {/* Submit Price Change Button */}
+                <button
+                  type="submit"
+                  disabled={
+                    !!pendingProposal ||
+                    isSubmittingProposal ||
+                    job.status === 'Completed' ||
+                    job.status === 'Cancelled' ||
+                    job.paymentStatus === 'Paid'
+                  }
+                  className="submit-price-proposal-btn"
+                  title={
+                    pendingProposal
+                      ? "A revision is already pending customer approval"
+                      : job.status === 'Completed' || job.status === 'Cancelled'
+                      ? "Booking is already finalized"
+                      : "Submit revised pricing for customer approval"
+                  }
+                >
+                  <Send size={15} />
+                  <span>
+                    {isSubmittingProposal
+                      ? 'Submitting Proposal...'
+                      : 'Submit Price Change for Customer Approval'}
+                  </span>
+                </button>
 
-            {/* Financial Ledger Breakdown */}
-            <div className="pricing-ledger-box">
-              <div className="ledger-row">
-                <span>Visiting Charge (Base):</span>
-                <span>₹{visitingFee}</span>
-              </div>
-              <div className="ledger-row">
-                <span>Repair Labor:</span>
-                <span>₹{repairLabor}</span>
-              </div>
-              <div className="ledger-row">
-                <span>Materials / Parts:</span>
-                <span>₹{materialCharge}</span>
-              </div>
-              <div className="ledger-divider"></div>
-              <div className="ledger-row total">
-                <span>Gross Customer Charge:</span>
-                <span>₹{calculatedTotal}</span>
-              </div>
-              <div className="ledger-row subdued">
-                <span>HomeFix Platform Fee (10%):</span>
-                <span>- ₹{platformFee}</span>
-              </div>
-              <div className="ledger-divider"></div>
-              <div className="ledger-row payout">
-                <span>Net Technician Payout:</span>
-                <span>₹{technicianPayout}</span>
-              </div>
-            </div>
+                {/* Reset button when prices modified */}
+                {isPriceModified && !pendingProposal && (
+                  <button
+                    type="button"
+                    onClick={handleResetPricingToApproved}
+                    className="reset-pricing-btn"
+                  >
+                    Reset to Approved (₹{approvedTotal})
+                  </button>
+                )}
 
-            {/* Save Button */}
-            <button type="submit" className="save-quotation-btn" disabled={isUpdating}>
-              <Check size={16} />
-              <span>{isUpdating ? 'Saving...' : 'Save Quotation & Status'}</span>
-            </button>
-          </form>
+                {/* Routine status/notes update */}
+                <button
+                  type="button"
+                  onClick={handleSaveNotesOnly}
+                  disabled={isUpdating}
+                  className="save-notes-secondary-btn"
+                >
+                  <Check size={14} />
+                  <span>{isUpdating ? 'Saving...' : 'Save Work Notes & Status Only'}</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Proposal History Section */}
+            {proposalHistory && proposalHistory.length > 0 && (
+              <div className="proposal-history-section">
+                <div className="proposal-history-header">
+                  <div className="flex items-center gap-1.5">
+                    <History size={14} className="text-[var(--emerald-ink)]" />
+                    <span className="proposal-history-title">Price Change History ({proposalHistory.length})</span>
+                  </div>
+                </div>
+
+                <div className="proposal-history-list">
+                  {proposalHistory.map((p) => {
+                    const isPending = p.status === 'PENDING_CUSTOMER_APPROVAL';
+                    const isApproved = p.status === 'APPROVED';
+                    const isRejected = p.status === 'REJECTED';
+
+                    return (
+                      <div key={p.id} className={`proposal-history-item status-${p.status?.toLowerCase()}`}>
+                        <div className="proposal-item-top">
+                          <span className={`proposal-status-chip chip-${p.status?.toLowerCase()}`}>
+                            {isPending && 'Pending Customer Decision'}
+                            {isApproved && 'Approved by Customer'}
+                            {isRejected && 'Rejected by Customer'}
+                          </span>
+                          <span className="proposal-item-time">
+                            {new Date(p.createdAt).toLocaleDateString('en-IN', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+
+                        <div className="proposal-item-amounts">
+                          <span className="text-xs text-[var(--text-muted)]">
+                            ₹{p.originalCustomerTotal} → <strong className="text-[var(--text-primary)]">₹{p.proposedCustomerTotal}</strong>
+                          </span>
+                          <span className={`proposal-item-diff ${p.difference >= 0 ? 'text-amber-800' : 'text-emerald-800'}`}>
+                            {p.difference >= 0 ? '+' : ''}₹{p.difference} ({p.percentageChange}%)
+                          </span>
+                        </div>
+
+                        <p className="proposal-item-reason">"{p.technicianReason}"</p>
+
+                        {isRejected && p.customerRejectionReason && (
+                          <div className="proposal-rejection-remark">
+                            <span className="font-semibold text-red-800">Customer feedback: </span>
+                            <span>"{p.customerRejectionReason}"</span>
+                          </div>
+                        )}
+                        {isApproved && p.decidedAt && (
+                          <div className="proposal-approved-remark">
+                            <CheckCircle2 size={12} className="text-emerald-700" />
+                            <span>Invoice updated to ₹{p.proposedCustomerTotal} on {new Date(p.decidedAt).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Section C: Field Quick Utilities Card */}
           <div className="fast-utilities-card">
@@ -1025,77 +1540,7 @@ export default function JobDetails() {
         </aside>
       </main>
 
-      {/* ====================================================================
-          LIGHTBOX MODAL FOR CUSTOMER PROBLEM PHOTOGRAPHS
-          ==================================================================== */}
-      {activeLightboxImg && (
-        <div
-          className="job-lightbox-backdrop"
-          onClick={() => setActiveLightboxImg(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="High-resolution diagnostic photograph"
-        >
-          <div className="job-lightbox-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="job-lightbox-header">
-              <span className="job-lightbox-title">
-                Customer Problem Photograph ({lightboxIndex + 1} of {job.problemImages.length})
-              </span>
-              <button
-                type="button"
-                className="job-lightbox-close"
-                onClick={() => setActiveLightboxImg(null)}
-                aria-label="Close Lightbox (Esc)"
-              >
-                <X size={18} />
-              </button>
-            </div>
 
-            <div className="job-lightbox-body">
-              <img
-                src={activeLightboxImg}
-                alt={`Problem full view ${lightboxIndex + 1}`}
-                className="job-lightbox-full-img"
-              />
-            </div>
-
-            <div className="job-lightbox-footer">
-              <span className="text-xs text-[var(--text-muted)]">
-                Press Esc to close · Use Left/Right keys to navigate
-              </span>
-              {job.problemImages.length > 1 && (
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    className="job-lightbox-nav-btn"
-                    onClick={() => {
-                      const prevIdx =
-                        (lightboxIndex - 1 + job.problemImages.length) % job.problemImages.length;
-                      setLightboxIndex(prevIdx);
-                      setActiveLightboxImg(job.problemImages[prevIdx]);
-                    }}
-                  >
-                    <ChevronLeft size={14} />
-                    <span>Previous</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="job-lightbox-nav-btn"
-                    onClick={() => {
-                      const nextIdx = (lightboxIndex + 1) % job.problemImages.length;
-                      setLightboxIndex(nextIdx);
-                      setActiveLightboxImg(job.problemImages[nextIdx]);
-                    }}
-                  >
-                    <span>Next</span>
-                    <ChevronRight size={14} />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ====================================================================
           CONFIRMATION MODAL: COMPLETE JOB & SUBMIT INVOICE
@@ -1119,12 +1564,12 @@ export default function JobDetails() {
             </div>
             <div className="completion-summary-row">
               <span className="text-[var(--text-muted)]">Total Billable Amount:</span>
-              <span className="font-bold text-[var(--text-primary)]">₹{calculatedTotal}</span>
+              <span className="font-bold text-[var(--text-primary)]">₹{approvedTotal.toLocaleString()}</span>
             </div>
             <div className="completion-summary-row border-t border-[var(--champagne-dark)] pt-2 mt-1">
               <span className="font-bold text-[var(--emerald-ink)]">Your Net Payout:</span>
               <span className="font-bold text-lg text-[var(--emerald-ink)] font-serif">
-                ₹{technicianPayout}
+                ₹{approvedTechnicianPayout.toLocaleString()}
               </span>
             </div>
           </div>
@@ -1214,11 +1659,11 @@ export default function JobDetails() {
               </div>
               <div className="flex justify-between font-bold text-sm pt-2 border-t border-[var(--champagne-dark)]">
                 <span>Customer Total</span>
-                <span>₹{calculatedTotal}</span>
+                <span>₹{(isPriceModified ? proposedTotal : approvedTotal).toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-xs text-[var(--emerald-ink)] font-semibold">
                 <span>Technician Net Payout</span>
-                <span>₹{technicianPayout}</span>
+                <span>₹{(isPriceModified ? proposedTechnicianPayout : approvedTechnicianPayout).toLocaleString()}</span>
               </div>
             </div>
 
@@ -1249,6 +1694,67 @@ export default function JobDetails() {
           </div>
         </div>
       </Modal>
+
+      {/* ====================================================================
+          CONFIRMATION MODAL: PRICE REVISION PROPOSAL SUBMITTED
+          ==================================================================== */}
+      {proposalSuccessModal && (
+        <Modal
+          isOpen={!!proposalSuccessModal}
+          onClose={() => setProposalSuccessModal(null)}
+          title="Price Change Proposal Submitted"
+          subtitle={`Booking Reference: #${proposalSuccessModal.bookingReference}`}
+          maxWidth="480px"
+        >
+          <div className="pcr-modal-success-content">
+            <div className="pcr-modal-icon-badge">
+              <CheckCircle2 size={36} className="text-emerald-700" />
+            </div>
+            <h4 className="pcr-modal-success-title">Quotation Sent for Customer Approval</h4>
+            <p className="pcr-modal-success-desc">
+              Your revised total of <strong>₹{proposalSuccessModal.proposedCustomerTotal}</strong> has been transmitted to customer <strong>{proposalSuccessModal.customerName || job.customer?.name}</strong>.
+            </p>
+
+            <div className="pcr-modal-summary-card">
+              <div className="pcr-summary-row">
+                <span>Original Approved Total:</span>
+                <span className="font-medium">₹{proposalSuccessModal.originalCustomerTotal}</span>
+              </div>
+              <div className="pcr-summary-row">
+                <span>Proposed Customer Total:</span>
+                <span className="font-bold text-[var(--emerald-ink)]">₹{proposalSuccessModal.proposedCustomerTotal}</span>
+              </div>
+              <div className="pcr-summary-row">
+                <span>Total Difference:</span>
+                <span className="font-semibold text-amber-800">
+                  {proposalSuccessModal.difference >= 0 ? '+' : ''}₹{proposalSuccessModal.difference} ({proposalSuccessModal.percentageChange}%)
+                </span>
+              </div>
+              <div className="pcr-summary-row pt-1.5 border-t border-[var(--champagne-dark)]">
+                <span>Proposed Technician Payout:</span>
+                <span className="font-bold text-emerald-800">₹{proposalSuccessModal.proposedTechnicianPayout}</span>
+              </div>
+            </div>
+
+            <div className="pcr-modal-note-box">
+              <Info size={14} className="text-[var(--emerald-ink)] flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-[var(--text-secondary)] m-0">
+                <strong>Important:</strong> The customer's current payable amount remains <strong>₹{proposalSuccessModal.originalCustomerTotal}</strong> until they explicitly accept this proposal in their My Bookings portal.
+              </p>
+            </div>
+
+            <div className="flex justify-end mt-4">
+              <button
+                type="button"
+                className="primary-workflow-btn w-full"
+                onClick={() => setProposalSuccessModal(null)}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -21,7 +21,8 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { bookingApi } from '../../services/api';
+import { bookingApi, priceChangeApi } from '../../services/api';
+import ProblemImageGallery from '../../components/booking/ProblemImageGallery';
 import './TechnicianPortal.css';
 
 const REJECTION_REASONS = [
@@ -35,6 +36,7 @@ const REJECTION_REASONS = [
 export default function TechnicianDashboard() {
   const { currentUser } = useAuth();
   const [bookings, setBookings] = useState([]);
+  const [proposals, setProposals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAvailable, setIsAvailable] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState(null);
@@ -58,6 +60,13 @@ export default function TechnicianDashboard() {
         console.error('Error fetching dashboard jobs:', err);
       } finally {
         setLoading(false);
+      }
+
+      try {
+        const props = await priceChangeApi.getAllProposals();
+        setProposals(props || []);
+      } catch (err) {
+        console.warn('Could not load proposals in technician dashboard:', err);
       }
     }
     fetchJobs();
@@ -235,6 +244,29 @@ export default function TechnicianDashboard() {
           </div>
         </Link>
       </section>
+
+      {/* Pending Price Revision Indicator */}
+      {proposals.filter((p) => p.status === 'PENDING_CUSTOMER_APPROVAL').length > 0 && (
+        <div className="p-3.5 mb-6 bg-amber-50 border border-amber-300 rounded-xl flex items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">⏳</span>
+            <div>
+              <h4 className="text-sm font-bold text-amber-950 m-0">
+                Price Revision Awaiting Customer Approval ({proposals.filter((p) => p.status === 'PENDING_CUSTOMER_APPROVAL').length} Pending)
+              </h4>
+              <p className="text-xs text-amber-800 m-0 mt-0.5">
+                Quotation sent for #{proposals.find((p) => p.status === 'PENDING_CUSTOMER_APPROVAL')?.bookingReference} (Proposed Total: ₹{proposals.find((p) => p.status === 'PENDING_CUSTOMER_APPROVAL')?.proposedCustomerTotal}). Current approved invoice remains active until customer confirms.
+              </p>
+            </div>
+          </div>
+          <Link
+            to={`/technician/bookings/${proposals.find((p) => p.status === 'PENDING_CUSTOMER_APPROVAL')?.bookingId}`}
+            className="portal-btn portal-btn-sm portal-btn-outline border-amber-400 text-amber-950 hover:bg-amber-100 whitespace-nowrap"
+          >
+            <span>View Job Details & Pricing →</span>
+          </Link>
+        </div>
+      )}
 
       {loading ? (
         <div className="portal-loading">
@@ -592,26 +624,13 @@ export default function TechnicianDashboard() {
                 </div>
               </div>
 
-              {/* Uploaded Photos */}
-              {selectedJobForDetails.problemImages && selectedJobForDetails.problemImages.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2 flex items-center gap-1.5">
-                    <Camera size={14} />
-                    <span>Customer Uploaded Photographs ({selectedJobForDetails.problemImages.length})</span>
-                  </h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {selectedJobForDetails.problemImages.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`Evidence ${idx + 1}`}
-                        className="w-full h-20 rounded-lg object-cover border border-[var(--champagne-border)] cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => setActiveLightboxImg(img)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Uploaded Photos (3:4 Passport Aspect Ratio) */}
+              <ProblemImageGallery
+                images={selectedJobForDetails.problemImages || []}
+                title="Customer Uploaded Photographs"
+                helperText="Review customer problem photos before accepting dispatch."
+                emptyMessage="No problem photos attached."
+              />
 
               {/* Appointment & Customer Address */}
               <div className="grid grid-cols-2 gap-3">

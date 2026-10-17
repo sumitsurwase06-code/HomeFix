@@ -530,9 +530,11 @@
 
 .tech-photo-thumb {
   width: 48px;
-  height: 48px;
+  height: 64px;
+  aspect-ratio: 3 / 4;
   border-radius: var(--radius-xs, 8px);
   object-fit: cover;
+  object-position: center;
   border: 1.5px solid var(--champagne-border, #E2CCA1);
   cursor: pointer;
   transition: all 180ms ease;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Phone, Wrench, ShieldCheck, ArrowRight, AlertCircle } from 'lucide-react';
 import { authApi } from '../../services/api';
 import Card from '../../components/common/Card';
@@ -8,7 +8,9 @@ import Button from '../../components/common/Button';
 import './Auth.css';
 
 export default function Register() {
-  const [role, setRole] = useState('customer'); // 'customer' | 'technician'
+  const [searchParams] = useSearchParams();
+  const initialRole = searchParams.get('role') === 'technician' ? 'technician' : 'customer';
+  const [role, setRole] = useState(initialRole);
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');

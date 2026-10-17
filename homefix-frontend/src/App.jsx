@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { CustomerNotificationProvider } from './context/CustomerNotificationContext';
 import AppRoutes from './routes/AppRoutes';
 
 export default function App() {
@@ -9,7 +10,9 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ToastProvider>
-          <AppRoutes />
+          <CustomerNotificationProvider>
+            <AppRoutes />
+          </CustomerNotificationProvider>
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

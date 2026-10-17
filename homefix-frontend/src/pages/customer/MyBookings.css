@@ -1,0 +1,236 @@
+/* ==========================================================================
+   HomeFix - My Bookings Page Stylesheet (MyBookings.css)
+   ========================================================================== */
+
+.my-bookings-page {
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+}
+
+.my-bookings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.5rem;
+}
+
+.my-bookings-title {
+  font-family: var(--font-serif, 'Playfair Display', Georgia, serif);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #064e3b;
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.01em;
+}
+
+.my-bookings-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Filter Toolbar */
+.my-bookings-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid #dce6e0;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.04);
+  flex-wrap: wrap;
+}
+
+.bookings-tabs-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.booking-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-tab-pill:hover {
+  color: #064e3b;
+  background: #fdf8ed;
+}
+
+.booking-tab-pill.active {
+  color: #064e3b;
+  background: #fdf8ed;
+  border-color: #ebd5ad;
+  font-weight: 700;
+}
+
+.tab-count-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.booking-tab-pill.active .tab-count-badge {
+  background: #064e3b;
+  color: #f8e7c9;
+}
+
+.bookings-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+}
+
+.bookings-search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.bookings-search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 2.2rem 0 2.4rem;
+  border: 1px solid #dce6e0;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #14251f;
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.bookings-search-input:focus {
+  border-color: #064e3b;
+  box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+}
+
+.bookings-search-clear {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bookings-search-clear:hover {
+  color: #064e3b;
+}
+
+/* Grid of Cards */
+.my-bookings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .my-bookings-page {
+    padding: 1rem 0.75rem 2rem;
+  }
+  .my-bookings-grid {
+    grid-template-columns: 1fr;
+  }
+  .bookings-search-wrapper {
+    max-width: 100%;
+  }
+}
+
+/* Pending Price Revisions Notification Banner */
+.my-bookings-pcr-banner {
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border: 1.5px solid #FCD34D;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.08);
+  flex-wrap: wrap;
+}
+
+.pcr-banner-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: #FEF3C7;
+  border: 1px solid #FDE68A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pcr-banner-content {
+  flex: 1;
+  min-width: 250px;
+}
+
+.pcr-banner-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #78350F;
+  margin: 0 0 0.2rem;
+}
+
+.pcr-banner-desc {
+  font-size: 0.825rem;
+  color: #92400E;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.pcr-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, #033C2E 0%, #064E3B 100%);
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.65rem 1.15rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(6, 78, 59, 0.2);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.pcr-banner-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(6, 78, 59, 0.3);
+}
+

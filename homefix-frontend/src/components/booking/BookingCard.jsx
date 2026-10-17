@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Clock, MapPin, User, ArrowRight, CreditCard, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, ArrowRight, CreditCard, ChevronRight, AlertTriangle } from 'lucide-react';
 import Card from '../common/Card';
 import Badge from '../common/Badge';
 import Button from '../common/Button';
 import './BookingCard.css';
 
-export default function BookingCard({ booking, role = 'customer', onCancel, onStatusUpdate }) {
+export default function BookingCard({ booking, role = 'customer', onCancel, onStatusUpdate, pendingProposal = null }) {
   const isCompleted = booking.status === 'Completed';
   const isCancelled = booking.status === 'Cancelled';
   const detailUrl = role === 'admin' 
@@ -16,14 +16,22 @@ export default function BookingCard({ booking, role = 'customer', onCancel, onSt
     : `/customer/bookings/${booking.id}`;
 
   return (
-    <Card hoverEffect className="booking-card">
+    <Card hoverEffect className={`booking-card ${pendingProposal ? 'has-pending-pcr' : ''}`}>
       <div className="booking-card-header">
         <div className="booking-id-row">
-          <span className="booking-id-tag">{booking.id}</span>
-          <span className="booking-date-sub">{new Date(booking.createdAt).toLocaleDateString()}</span>
+          <span className="booking-id-tag">#{booking.id}</span>
+          <span className="booking-date-sub">
+            {booking.createdAt ? new Date(booking.createdAt).toLocaleDateString() : ''}
+          </span>
         </div>
 
         <div className="booking-badges-row">
+          {pendingProposal && (
+            <span className="pcr-card-pill" title="Technician requested a price update awaiting your decision">
+              <AlertTriangle size={11} />
+              <span>Approval Needed</span>
+            </span>
+          )}
           <Badge status={booking.status} dot>
             {booking.status}
           </Badge>
@@ -37,6 +45,16 @@ export default function BookingCard({ booking, role = 'customer', onCancel, onSt
         <h4 className="booking-service-title">{booking.serviceName}</h4>
         <p className="booking-problem-snippet">{booking.problemTitle}</p>
 
+        {/* Pending Price Revision Callout */}
+        {pendingProposal && (
+          <div className="card-pcr-notice">
+            <AlertTriangle size={13} className="text-amber-700 flex-shrink-0" />
+            <div className="card-pcr-notice-text">
+              <strong>Price Revision Requested:</strong> Technician proposed <strong>₹{pendingProposal.proposedCustomerTotal}</strong> (Approved: ₹{pendingProposal.originalCustomerTotal}). Your approval required.
+            </div>
+          </div>
+        )}
+
         <div className="booking-meta-grid">
           <div className="booking-meta-item">
             <Calendar size={14} className="meta-icon" />
@@ -48,19 +66,24 @@ export default function BookingCard({ booking, role = 'customer', onCancel, onSt
           </div>
           <div className="booking-meta-item">
             <User size={14} className="meta-icon" />
-            <span>{role === 'technician' ? booking.customer.name : booking.technicianName}</span>
+            <span>{role === 'technician' ? booking.customer?.name : booking.technicianName}</span>
           </div>
           <div className="booking-meta-item">
             <MapPin size={14} className="meta-icon" />
-            <span className="truncate-text">{booking.address.locality}, {booking.address.city}</span>
+            <span className="truncate-text">{booking.address?.locality}, {booking.address?.city}</span>
           </div>
         </div>
       </div>
 
       <div className="booking-card-footer">
         <div className="booking-pricing-brief">
-          <span className="price-label">Estimated Total</span>
+          <span className="price-label">Approved Total</span>
           <span className="price-total">₹{booking.pricing.customerTotal}</span>
+          {pendingProposal && (
+            <span className="price-proposed-tag">
+              Proposed: ₹{pendingProposal.proposedCustomerTotal}
+            </span>
+          )}
         </div>
 
         <div className="booking-card-actions">
@@ -82,8 +105,12 @@ export default function BookingCard({ booking, role = 'customer', onCancel, onSt
           )}
 
           <Link to={detailUrl}>
-            <Button variant="primary" size="sm" rightIcon={<ChevronRight size={14} />}>
-              Details
+            <Button
+              variant={pendingProposal ? 'primary' : 'primary'}
+              size="sm"
+              rightIcon={<ChevronRight size={14} />}
+            >
+              {pendingProposal ? 'Review Price Update' : 'Details'}
             </Button>
           </Link>
         </div>

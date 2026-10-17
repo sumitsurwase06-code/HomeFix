@@ -149,8 +149,12 @@ export const DEMO_BOOKINGS = [
     technicianName: 'Vikram Saini (Demo)',
     technicianAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',
     problemTitle: 'Key getting stuck in brass cylinder lock',
-    problemDescription: 'Main door lock does not rotate smoothly. Key has to be wiggled violently.',
-    problemImages: [],
+    problemDescription: 'Main door lock does not rotate smoothly. Key has to be wiggled violently and the cylinder barrel seems slightly misaligned with the deadbolt plate.',
+    problemImages: [
+      'https://images.unsplash.com/photo-1558002038-1055907df827?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1582139329536-e7284fece509?w=600&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?w=600&auto=format&fit=crop&q=80'
+    ],
     address: {
       street: 'B-304, Sea Green Apartments',
       locality: 'Bandra West',
@@ -173,6 +177,48 @@ export const DEMO_BOOKINGS = [
     createdAt: '2026-10-04T00:15:00Z',
     statusHistory: [
       { status: 'Requested', timestamp: '2026-10-04T00:15:00Z', note: 'Waiting for technician acceptance' }
+    ]
+  },
+  {
+    id: 'HF-BK-8909',
+    bookingReference: 'HF-BK-8909',
+    serviceId: 'plumbing',
+    serviceName: 'Plumbing - Commercial Water System',
+    customer: {
+      name: 'Dr. Vivek Mehra',
+      email: 'vivek.mehra@example.com',
+      phone: '+91 99887 66554',
+    },
+    technicianId: 'TECH-999',
+    technicianName: 'Sanjay Rawat (Other Partner)',
+    isOtherTechnician: true,
+    problemTitle: 'Private commercial water boiler pressure diagnostic',
+    problemDescription: 'Industrial pressure valve leakage. Strictly confidential facility dispatch.',
+    problemImages: [],
+    address: {
+      street: 'Tower 4, Prime Tech Park',
+      locality: 'Cyber City',
+      city: 'Gurugram',
+      postalCode: '122002',
+      label: 'Work'
+    },
+    appointmentDate: '2026-10-10',
+    appointmentTime: '09:00 AM - 11:00 AM',
+    status: 'In Progress',
+    paymentStatus: 'Pending',
+    pricing: {
+      visitingCharge: 499,
+      repairLabor: 1200,
+      materialCharge: 850,
+      customerTotal: 2549,
+      platformFee: 255,
+      technicianPayout: 2294,
+    },
+    createdAt: '2026-10-04T12:00:00Z',
+    statusHistory: [
+      { status: 'Requested', timestamp: '2026-10-04T12:00:00Z', note: 'Booking submitted' },
+      { status: 'Accepted', timestamp: '2026-10-04T12:30:00Z', note: 'Accepted by Sanjay Rawat' },
+      { status: 'In Progress', timestamp: '2026-10-04T13:00:00Z', note: 'Diagnostic underway' }
     ]
   }
 ];

@@ -1,0 +1,144 @@
+/* ==========================================================================
+   HomeFix - Prominent Pending Price Approval Alert Banner
+   Theme: Emerald Ink & Champagne
+   ========================================================================== */
+
+.pcr-global-alert-banner {
+  background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 100%);
+  border-bottom: 2px solid #F59E0B;
+  color: #78350F;
+  padding: 0.75rem 1.25rem;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  z-index: 100;
+  animation: bannerSlideDown 0.25s ease-out;
+}
+
+@keyframes bannerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pcr-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.pcr-banner-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #F59E0B;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.4);
+}
+
+.pcr-banner-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.pcr-banner-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #92400E;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pcr-banner-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.15rem 0.45rem;
+  background: #DC2626;
+  color: #ffffff;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.pcr-banner-desc {
+  font-size: 0.82rem;
+  color: #78350F;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.pcr-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.pcr-banner-btn-review {
+  padding: 0.5rem 1rem;
+  background: #064E3B;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 2px 6px rgba(6, 78, 59, 0.25);
+  transition: all 0.15s ease;
+}
+
+.pcr-banner-btn-review:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.pcr-banner-btn-dismiss {
+  background: transparent;
+  border: none;
+  color: #92400E;
+  padding: 0.35rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.pcr-banner-btn-dismiss:hover {
+  background: rgba(180, 83, 9, 0.15);
+}
+
+@media (max-width: 640px) {
+  .pcr-global-alert-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem 1rem;
+  }
+  .pcr-banner-actions {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 0.25rem;
+  }
+  .pcr-banner-btn-review {
+    flex: 1;
+    justify-content: center;
+  }
+}

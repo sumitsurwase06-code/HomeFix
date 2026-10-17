@@ -43,6 +43,7 @@ import Earnings from '../pages/technician/Earnings';
 import Reviews from '../pages/technician/Reviews';
 import TechnicianProfile from '../pages/technician/TechnicianProfile';
 import Schedule from '../pages/technician/Schedule';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 
 // Admin Pages
 import AdminDashboard from '../pages/admin/AdminDashboard';
@@ -115,7 +116,14 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<TechnicianDashboard />} />
         <Route path="requests" element={<BookingRequests />} />
         <Route path="bookings" element={<TechnicianBookings />} />
-        <Route path="bookings/:id" element={<JobDetails />} />
+        <Route
+          path="bookings/:id"
+          element={
+            <ErrorBoundary title="Job Diagnostics Error" message="An error occurred while loading this job diagnostics view.">
+              <JobDetails />
+            </ErrorBoundary>
+          }
+        />
         <Route path="schedule" element={<Schedule />} />
         <Route path="availability" element={<Availability />} />
         <Route path="earnings" element={<Earnings />} />

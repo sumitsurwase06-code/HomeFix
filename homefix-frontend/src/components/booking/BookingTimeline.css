@@ -83,8 +83,8 @@
 .timeline-connector {
   flex: 1;
   height: 3px;
-  background-color: var(--champagne-dark, #EBD5AD);
-  margin: -24px 8px 0 8px;
+  background-color: var(--champagne-border, #EBD5AD);
+  margin: -24px 6px 0 6px;
   border-radius: 2px;
 }
 
@@ -114,14 +114,27 @@
 }
 
 @media (max-width: 640px) {
+  .booking-timeline-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 10px;
+  }
+
+  .timeline-steps-track {
+    min-width: 480px;
+  }
+
   .timeline-label {
-    display: none;
+    font-size: 0.7rem;
+    white-space: nowrap;
   }
+
   .timeline-icon-box {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
+
   .timeline-connector {
-    margin: 0 4px;
+    margin: -20px 4px 0 4px;
   }
 }

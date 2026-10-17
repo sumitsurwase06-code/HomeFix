@@ -7,6 +7,7 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   ArrowRight,
   MapPin,
   Wrench,
@@ -19,6 +20,7 @@ import {
   Info
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCustomerNotifications } from '../../context/CustomerNotificationContext';
 import { DEMO_BOOKINGS } from '../../data/bookings';
 import { bookingApi } from '../../services/api';
 import StatusBadge from '../../components/common/StatusBadge';
@@ -71,6 +73,7 @@ const STATUS_EXPLANATIONS = {
 
 export default function CustomerDashboard() {
   const { currentUser } = useAuth();
+  const { pendingProposals, pendingCount, openReviewModal } = useCustomerNotifications();
   const navigate = useNavigate();
 
   const [bookings, setBookings] = useState(DEMO_BOOKINGS);
@@ -167,6 +170,31 @@ export default function CustomerDashboard() {
           <span>{currentUser?.name || 'My Profile'}</span>
         </Link>
       </div>
+
+      {/* Pending Price Revision Approval Banner */}
+      {pendingCount > 0 && pendingProposals.length > 0 && (
+        <div className="cust-pcr-alert-banner">
+          <div className="pcr-alert-icon">
+            <AlertTriangle size={22} className="text-amber-800" />
+          </div>
+          <div className="pcr-alert-content">
+            <h3 className="pcr-alert-title">
+              Action Required: Review Price Revision ({pendingCount} Pending)
+            </h3>
+            <p className="pcr-alert-desc">
+              Technician {pendingProposals[0].technicianName} proposed revised charges of ₹{pendingProposals[0].proposedCustomerTotal} for #{pendingProposals[0].bookingReference || pendingProposals[0].bookingId}. Your approval is needed to proceed.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="pcr-alert-action-btn cursor-pointer"
+            onClick={() => openReviewModal(pendingProposals[0])}
+          >
+            <span>Review & Approve</span>
+            <ArrowRight size={15} />
+          </button>
+        </div>
+      )}
 
       {/* 2. Compact Booking Summary Metrics */}
       <div className="cust-metrics-grid">

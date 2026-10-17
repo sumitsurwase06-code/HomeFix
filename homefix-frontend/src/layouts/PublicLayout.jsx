@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import Navbar from '../components/navbar/Navbar';
 import Footer from '../components/footer/Footer';
+import PendingPriceBanner from '../components/notifications/PendingPriceBanner';
 
 export default function PublicLayout() {
   return (
@@ -17,6 +18,9 @@ export default function PublicLayout() {
 
       {/* Main Navbar */}
       <Navbar />
+
+      {/* Customer Pending Price Approval Alert Banner */}
+      <PendingPriceBanner />
 
       {/* Page Content */}
       <main className="public-main-content flex-grow" id="main-content">

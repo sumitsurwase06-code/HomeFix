@@ -1,0 +1,6 @@
+com\homefix\service\AdminDashboardServiceTest.class
+com\homefix\service\BookingCancellationServiceTest.class
+com\homefix\service\PriceChangeServiceTest.class
+com\homefix\HomeFixApplicationTests.class
+com\homefix\controller\NotificationControllerTest.class
+com\homefix\service\TechnicianVerificationServiceTest.class

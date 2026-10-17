@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { bookingApi } from '../../services/api';
+import ProblemImageGallery from '../../components/booking/ProblemImageGallery';
 import './TechnicianPortal.css';
 
 export default function Schedule() {
@@ -530,26 +531,13 @@ export default function Schedule() {
                 </div>
               </div>
 
-              {/* Uploaded Diagnostic Photos */}
-              {selectedJobForDetails.problemImages && selectedJobForDetails.problemImages.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2 flex items-center gap-1.5">
-                    <Camera size={14} />
-                    <span>Customer Attached Photos ({selectedJobForDetails.problemImages.length})</span>
-                  </h4>
-                  <div className="grid grid-cols-3 gap-2">
-                    {selectedJobForDetails.problemImages.map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={img}
-                        alt={`Evidence ${idx + 1}`}
-                        className="w-full h-20 rounded-lg object-cover border border-[var(--champagne-border)] cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => setActiveLightboxImg(img)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Uploaded Diagnostic Photos (3:4 Passport Aspect Ratio) */}
+              <ProblemImageGallery
+                images={selectedJobForDetails.problemImages || []}
+                title="Customer Problem Photos"
+                helperText="Review customer problem photos before arriving on site."
+                emptyMessage="No problem photos attached."
+              />
 
               {/* Appointment & Customer Address */}
               <div className="grid grid-cols-2 gap-3">
@@ -608,8 +596,10 @@ export default function Schedule() {
               <Link
                 to={`/technician/bookings/${selectedJobForDetails.id}`}
                 className="portal-btn portal-btn-outline portal-btn-sm"
+                onClick={() => setSelectedJobForDetails(null)}
+                title="View Full Job Diagnostic Details"
               >
-                <span>Full Diagnostics Page →</span>
+                <span>View Full Job Diagnostic Details →</span>
               </Link>
               {selectedJobForDetails.status === 'Accepted' && (
                 <button

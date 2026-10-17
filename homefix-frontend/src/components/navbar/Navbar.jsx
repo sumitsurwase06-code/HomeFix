@@ -15,6 +15,8 @@ import {
   LogIn
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCustomerNotifications } from '../../context/CustomerNotificationContext';
+import NotificationBell from '../notifications/NotificationBell';
 import Button from '../common/Button';
 import './Navbar.css';
 
@@ -24,6 +26,7 @@ export default function Navbar() {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [navSearch, setNavSearch] = useState('');
   const { currentUser, isAuthenticated, userRole, logout, resetToGuest, switchDemoRole, openLoginModal } = useAuth();
+  const { pendingCount, pendingProposals, openReviewModal } = useCustomerNotifications();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -104,105 +107,142 @@ export default function Navbar() {
         </form>
 
         {/* Right CTA / Auth Controls */}
+        {/* Right CTA / Auth Controls */}
         <div className="navbar-actions desktop-actions">
           {isAuthenticated ? (
-            <div className="user-dropdown-container">
-              <button
-                type="button"
-                className="user-profile-btn"
-                onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                aria-expanded={isUserDropdownOpen}
-              >
-                <div className="user-avatar-sm">
-                  {currentUser?.avatar ? (
-                    <img src={currentUser.avatar} alt={currentUser.name} />
-                  ) : (
-                    <User size={15} />
-                  )}
-                </div>
-                <div className="user-info-text">
-                  <span className="user-name-label">{currentUser?.name?.split(' ')[0] || 'User'}</span>
-                  <span className="user-role-label">{currentUser?.role || 'Member'}</span>
-                </div>
-                <ChevronDown size={14} className={`dropdown-chevron ${isUserDropdownOpen ? 'rotated' : ''}`} />
-              </button>
+            <div className="flex items-center gap-3">
+              {userRole === 'customer' && <NotificationBell />}
 
-              {isUserDropdownOpen && (
-                <div className="user-dropdown-menu">
-                  <div className="dropdown-header">
-                    <p className="dropdown-user-name">{currentUser?.name}</p>
-                    <p className="dropdown-user-email">{currentUser?.email}</p>
+              <div className="user-dropdown-container">
+                <button
+                  type="button"
+                  className="user-profile-btn"
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  aria-expanded={isUserDropdownOpen}
+                >
+                  <div className="user-avatar-sm">
+                    {currentUser?.avatar ? (
+                      <img src={currentUser.avatar} alt={currentUser.name} />
+                    ) : (
+                      <User size={15} />
+                    )}
                   </div>
+                  <div className="user-info-text">
+                    <span className="user-name-label">{currentUser?.name?.split(' ')[0] || 'User'}</span>
+                    <span className="user-role-label">{currentUser?.role || 'Member'}</span>
+                  </div>
+                  <ChevronDown size={14} className={`dropdown-chevron ${isUserDropdownOpen ? 'rotated' : ''}`} />
+                </button>
 
-                  <div className="dropdown-role-switch">
-                    <span className="switch-title">Quick Demo Switch:</span>
-                    <div className="role-pills">
-                      <button
-                        type="button"
-                        className={`role-pill ${userRole === 'customer' ? 'active' : ''}`}
-                        onClick={() => { switchDemoRole('customer'); setIsUserDropdownOpen(false); navigate('/'); }}
-                      >
-                        Customer
-                      </button>
-                      <button
-                        type="button"
-                        className={`role-pill ${userRole === 'technician' ? 'active' : ''}`}
-                        onClick={() => { switchDemoRole('technician'); setIsUserDropdownOpen(false); navigate('/technician/dashboard'); }}
-                      >
-                        Technician
-                      </button>
-                      <button
-                        type="button"
-                        className={`role-pill ${userRole === 'admin' ? 'active' : ''}`}
-                        onClick={() => { switchDemoRole('admin'); setIsUserDropdownOpen(false); navigate('/admin/dashboard'); }}
-                      >
-                        Admin
-                      </button>
+                {isUserDropdownOpen && (
+                  <div className="user-dropdown-menu">
+                    <div className="dropdown-header">
+                      <p className="dropdown-user-name">{currentUser?.name}</p>
+                      <p className="dropdown-user-email">{currentUser?.email}</p>
                     </div>
-                  </div>
 
-                  <div className="dropdown-divider" />
+                    {import.meta.env.DEV && (
+                      <div className="dropdown-role-switch">
+                        <span className="switch-title">Quick Demo Switch:</span>
+                        <div className="role-pills">
+                          <button
+                            type="button"
+                            className={`role-pill ${userRole === 'customer' ? 'active' : ''}`}
+                            onClick={() => { switchDemoRole('customer'); setIsUserDropdownOpen(false); navigate('/'); }}
+                          >
+                            Customer
+                          </button>
+                          <button
+                            type="button"
+                            className={`role-pill ${userRole === 'technician' ? 'active' : ''}`}
+                            onClick={() => { switchDemoRole('technician'); setIsUserDropdownOpen(false); navigate('/technician/dashboard'); }}
+                          >
+                            Technician
+                          </button>
+                          <button
+                            type="button"
+                            className={`role-pill ${userRole === 'admin' ? 'active' : ''}`}
+                            onClick={() => { switchDemoRole('admin'); setIsUserDropdownOpen(false); navigate('/admin/dashboard'); }}
+                          >
+                            Admin
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
-                  <Link
-                    to={getDashboardPath()}
-                    className="dropdown-item"
-                    onClick={() => setIsUserDropdownOpen(false)}
-                  >
-                    <Briefcase size={16} />
-                    <span>Go to Dashboard</span>
-                  </Link>
+                    <div className="dropdown-divider" />
 
-                  {userRole === 'customer' && (
+                    {userRole === 'customer' && pendingCount > 0 && (
+                      <button
+                        type="button"
+                        className="dropdown-item flex items-center justify-between text-amber-800 bg-amber-50 font-semibold"
+                        onClick={() => {
+                          setIsUserDropdownOpen(false);
+                          if (pendingProposals[0]) {
+                            openReviewModal(pendingProposals[0]);
+                          }
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle size={16} className="text-amber-600" />
+                          <span>Review Price Update</span>
+                        </div>
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-200 text-amber-900 rounded-full">
+                          {pendingCount}
+                        </span>
+                      </button>
+                    )}
+
                     <Link
-                      to="/customer/bookings"
+                      to={getDashboardPath()}
                       className="dropdown-item"
                       onClick={() => setIsUserDropdownOpen(false)}
                     >
-                      <Calendar size={16} />
-                      <span>My Bookings</span>
+                      <Briefcase size={16} />
+                      <span>Go to Dashboard</span>
                     </Link>
-                  )}
 
-                  <button
-                    type="button"
-                    className="dropdown-item text-muted"
-                    onClick={() => {
-                      resetToGuest();
-                      setIsUserDropdownOpen(false);
-                      navigate('/');
-                    }}
-                    title="Clear active demo session and browse as Public Guest"
-                  >
-                    <User size={16} />
-                    <span>Switch to Public Guest</span>
-                  </button>
+                    {userRole === 'customer' && (
+                      <Link
+                        to="/customer/bookings"
+                        className="dropdown-item flex items-center justify-between"
+                        onClick={() => setIsUserDropdownOpen(false)}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} />
+                          <span>My Bookings</span>
+                        </div>
+                        {pendingCount > 0 && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full border border-amber-300">
+                            {pendingCount} pending
+                          </span>
+                        )}
+                      </Link>
+                    )}
 
-                  <button type="button" className="dropdown-item dropdown-logout" onClick={handleLogout}>
-                    <LogOut size={16} />
-                    <span>Log Out</span>
-                  </button>
-                </div>
-              )}
+                    {import.meta.env.DEV && (
+                      <button
+                        type="button"
+                        className="dropdown-item text-muted"
+                        onClick={() => {
+                          resetToGuest();
+                          setIsUserDropdownOpen(false);
+                          navigate('/');
+                        }}
+                        title="Clear active demo session and browse as Public Guest"
+                      >
+                        <User size={16} />
+                        <span>Switch to Public Guest</span>
+                      </button>
+                    )}
+
+                    <button type="button" className="dropdown-item dropdown-logout" onClick={handleLogout}>
+                      <LogOut size={16} />
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <Link
@@ -210,7 +250,7 @@ export default function Navbar() {
               className="navbar-login-pill-btn"
             >
               <User size={16} />
-              <span>Login / Sign Up</span>
+              <span>Sign In</span>
             </Link>
           )}
         </div>
@@ -323,7 +363,7 @@ export default function Navbar() {
                     navigate('/login');
                   }}
                 >
-                  Log In / Sign Up
+                  Sign In
                 </button>
                 <Link
                   to="/register"

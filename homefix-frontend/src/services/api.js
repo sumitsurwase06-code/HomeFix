@@ -194,8 +194,8 @@ export const bookingApi = {
   getTechnicianBookings: async (techId) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Return active dispatch list from DEMO_BOOKINGS
-        resolve(DEMO_BOOKINGS);
+        // Return active dispatch list from DEMO_BOOKINGS excluding other technicians' private jobs
+        resolve(DEMO_BOOKINGS.filter((b) => !b.isOtherTechnician));
       }, 150);
     });
   },
@@ -320,4 +320,441 @@ export const reviewApi = {
   },
 };
 
+/* ==========================================================================
+   Price Modification & Customer Approval Workflow API
+   ========================================================================== */
+const STORAGE_KEY_PRICE_CHANGES = 'homefix_price_change_requests';
+const STORAGE_KEY_NOTIFICATIONS = 'homefix_user_notifications';
+
+const INITIAL_PROPOSALS = [
+  {
+    id: 'PCR-8901-1',
+    bookingId: 'HF-BK-8901',
+    bookingReference: 'HF-BK-8901',
+    serviceName: 'Plumbing - Tap & Mixer Leakage',
+    technicianId: 'TECH-101',
+    technicianName: 'Rajesh Kumar (Demo)',
+    customerId: 'USR-ROHAN',
+    customerName: 'Rohan Sharma',
+    customerEmail: 'rohan.sharma@example.com',
+    originalVisitingCharge: 199,
+    originalLaborCharge: 350,
+    originalMaterialCharge: 220,
+    originalCustomerTotal: 769,
+    proposedVisitingCharge: 199,
+    proposedLaborCharge: 550,
+    proposedMaterialCharge: 420,
+    proposedCustomerTotal: 1169,
+    proposedPlatformFee: 117,
+    proposedTechnicianPayout: 1052,
+    difference: 400,
+    percentageChange: 52.02,
+    technicianReason: 'Found deep internal hairline crack in mixer manifold requiring heavy brass replacement valve and 45 mins additional copper joint brazing.',
+    customerRejectionReason: null,
+    status: 'PENDING_CUSTOMER_APPROVAL',
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+    decidedAt: null,
+  },
+];
+
+function getStoredProposals() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PRICE_CHANGES);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY_PRICE_CHANGES, JSON.stringify(INITIAL_PROPOSALS));
+      return INITIAL_PROPOSALS;
+    }
+    return JSON.parse(raw);
+  } catch {
+    return INITIAL_PROPOSALS;
+  }
+}
+
+function saveStoredProposals(list) {
+  try {
+    localStorage.setItem(STORAGE_KEY_PRICE_CHANGES, JSON.stringify(list));
+  } catch (err) {
+    console.error('Failed saving proposals to localStorage', err);
+  }
+}
+
+export const priceChangeApi = {
+  /**
+   * Technician submits a revised price proposal
+   */
+  submitProposal: async (bookingId, payload) => {
+    try {
+      const res = await apiClient.post(`/technician/bookings/${bookingId}/price-change`, payload);
+      if (res && res.data) {
+        const proposals = getStoredProposals();
+        const existingIdx = proposals.findIndex(
+          (p) => p.id === res.data.id || String(p.bookingId) === String(bookingId) || p.bookingReference === bookingId
+        );
+        if (existingIdx >= 0) {
+          proposals[existingIdx] = res.data;
+        } else {
+          proposals.unshift(res.data);
+        }
+        saveStoredProposals(proposals);
+
+        notificationApi.create({
+          recipientEmail: res.data.customerEmail || 'rohan.sharma@example.com',
+          title: `Price Revision Requested: #${res.data.bookingReference || bookingId}`,
+          message: `Technician submitted revised charges of ₹${res.data.proposedCustomerTotal}. Reason: "${payload.reason.trim()}". Please review and approve or reject.`,
+          type: 'PRICE_CHANGE_REQUEST',
+          bookingId: res.data.bookingId || bookingId,
+        });
+
+        return res.data;
+      }
+    } catch {
+      // Offline / Demo fallback
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const proposals = getStoredProposals();
+          const existingPending = proposals.find(
+            (p) =>
+              (p.bookingId === bookingId || p.bookingReference === bookingId) &&
+              p.status === 'PENDING_CUSTOMER_APPROVAL'
+          );
+
+          if (existingPending) {
+            return reject(
+              new Error('A price revision request is already awaiting customer approval for this booking.')
+            );
+          }
+
+          const targetBooking = DEMO_BOOKINGS.find(
+            (b) => b.id === bookingId || b.bookingReference === bookingId
+          );
+
+          const origVisiting = Number(targetBooking?.pricing?.visitingCharge ?? 199);
+          const origLabor = Number(targetBooking?.pricing?.repairLabor ?? 0);
+          const origMaterial = Number(targetBooking?.pricing?.materialCharge ?? 0);
+          const origTotal = Number(targetBooking?.pricing?.customerTotal ?? (origVisiting + origLabor + origMaterial));
+
+          const propVisiting = Number(payload.visitingCharge);
+          const propLabor = Number(payload.laborCharge);
+          const propMaterial = Number(payload.materialCharge);
+          const propTotal = propVisiting + propLabor + propMaterial;
+
+          if (
+            propVisiting === origVisiting &&
+            propLabor === origLabor &&
+            propMaterial === origMaterial
+          ) {
+            return reject(new Error('Proposed charges are identical to currently approved charges.'));
+          }
+
+          const platformFee = Math.round(propTotal * 0.10);
+          const techPayout = propTotal - platformFee;
+          const diff = propTotal - origTotal;
+          const pct = origTotal > 0 ? Number(((diff / origTotal) * 100).toFixed(2)) : 0;
+
+          const newProposal = {
+            id: 'PCR-' + Date.now(),
+            bookingId: targetBooking?.id || bookingId,
+            bookingReference: targetBooking?.bookingReference || targetBooking?.id || bookingId,
+            serviceName: targetBooking?.serviceName || 'HomeFix Maintenance',
+            technicianId: targetBooking?.technicianId || 'TECH-101',
+            technicianName: targetBooking?.technicianName || 'Technician',
+            customerId: targetBooking?.customer?.id || 'CUST-101',
+            customerName: targetBooking?.customer?.name || 'Customer',
+            customerEmail: targetBooking?.customer?.email || 'customer@example.com',
+            originalVisitingCharge: origVisiting,
+            originalLaborCharge: origLabor,
+            originalMaterialCharge: origMaterial,
+            originalCustomerTotal: origTotal,
+            proposedVisitingCharge: propVisiting,
+            proposedLaborCharge: propLabor,
+            proposedMaterialCharge: propMaterial,
+            proposedCustomerTotal: propTotal,
+            proposedPlatformFee: platformFee,
+            proposedTechnicianPayout: techPayout,
+            difference: diff,
+            percentageChange: pct,
+            technicianReason: payload.reason.trim(),
+            customerRejectionReason: null,
+            status: 'PENDING_CUSTOMER_APPROVAL',
+            createdAt: new Date().toISOString(),
+            decidedAt: null,
+          };
+
+          proposals.unshift(newProposal);
+          saveStoredProposals(proposals);
+
+          // Record notification
+          notificationApi.create({
+            recipientEmail: newProposal.customerEmail,
+            title: `Price Revision Requested: #${newProposal.bookingReference}`,
+            message: `Technician ${newProposal.technicianName} submitted revised charges of ₹${propTotal} (Diff: ${diff >= 0 ? '+' : ''}₹${diff}). Reason: "${payload.reason.trim()}". Please review and approve or reject.`,
+            type: 'PRICE_CHANGE_REQUEST',
+            bookingId: newProposal.bookingId,
+          });
+
+          resolve(newProposal);
+        }, 300);
+      });
+    }
+  },
+
+  /**
+   * Get all pending price proposals for customer
+   */
+  getPendingForCustomer: async (customerEmail) => {
+    try {
+      const res = await apiClient.get('/customer/price-changes/pending');
+      return res.data;
+    } catch {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const list = getStoredProposals().filter(
+            (p) =>
+              p.status === 'PENDING_CUSTOMER_APPROVAL' &&
+              (!customerEmail || !p.customerEmail || p.customerEmail.toLowerCase() === customerEmail.toLowerCase())
+          );
+          resolve(list);
+        }, 150);
+      });
+    }
+  },
+
+  /**
+   * Get all price revision proposals in system
+   */
+  getAllProposals: async () => {
+    return getStoredProposals();
+  },
+
+  /**
+   * Get proposals for a specific booking
+   */
+  getBookingHistory: async (bookingId) => {
+    try {
+      let res;
+      try {
+        res = await apiClient.get(`/technician/bookings/${bookingId}/price-change/history`);
+      } catch {
+        res = await apiClient.get(`/customer/bookings/${bookingId}/price-change/history`);
+      }
+      if (res && res.data && res.data.length > 0) {
+        return res.data;
+      }
+      throw new Error('No backend history, fallback to local');
+    } catch {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const list = getStoredProposals().filter(
+            (p) => p.bookingId === bookingId || p.bookingReference === bookingId
+          );
+          resolve(list);
+        }, 150);
+      });
+    }
+  },
+
+  /**
+   * Customer accepts revised proposal
+   */
+  approveProposal: async (requestId) => {
+    try {
+      const res = await apiClient.post(`/customer/price-changes/${requestId}/approve`);
+      if (res.data) {
+        const proposals = getStoredProposals();
+        const p = proposals.find((x) => x.id === requestId || String(x.id) === String(res.data.id));
+        if (p) {
+          p.status = 'APPROVED';
+          p.decidedAt = res.data.decidedAt || new Date().toISOString();
+          saveStoredProposals(proposals);
+        }
+        const b = DEMO_BOOKINGS.find(
+          (item) => item.id === res.data.bookingId || item.bookingReference === res.data.bookingId
+        );
+        if (b) {
+          b.pricing = {
+            visitingCharge: res.data.proposedVisitingCharge,
+            repairLabor: res.data.proposedLaborCharge,
+            materialCharge: res.data.proposedMaterialCharge,
+            customerTotal: res.data.proposedCustomerTotal,
+            platformFee: res.data.proposedPlatformFee,
+            technicianPayout: res.data.proposedTechnicianPayout,
+          };
+        }
+        return res.data;
+      }
+      throw new Error('Approval response empty');
+    } catch {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const proposals = getStoredProposals();
+          const req = proposals.find((p) => p.id === requestId);
+          if (!req) return reject(new Error('Price change proposal not found'));
+          if (req.status !== 'PENDING_CUSTOMER_APPROVAL') {
+            return reject(new Error(`This proposal has already been ${req.status}`));
+          }
+
+          req.status = 'APPROVED';
+          req.decidedAt = new Date().toISOString();
+          saveStoredProposals(proposals);
+
+          // Update active booking pricing atomically
+          const b = DEMO_BOOKINGS.find(
+            (item) => item.id === req.bookingId || item.bookingReference === req.bookingId
+          );
+          if (b) {
+            b.pricing = {
+              visitingCharge: req.proposedVisitingCharge,
+              repairLabor: req.proposedLaborCharge,
+              materialCharge: req.proposedMaterialCharge,
+              customerTotal: req.proposedCustomerTotal,
+              platformFee: req.proposedPlatformFee,
+              technicianPayout: req.proposedTechnicianPayout,
+            };
+            if (!b.statusHistory) b.statusHistory = [];
+            b.statusHistory.push({
+              status: b.status,
+              timestamp: new Date().toISOString(),
+              note: `Customer approved revised charges: ₹${req.originalCustomerTotal} → ₹${req.proposedCustomerTotal}. New invoice active.`,
+            });
+          }
+
+          notificationApi.create({
+            recipientEmail: req.technicianId,
+            title: `Charges Approved: #${req.bookingReference}`,
+            message: `Customer ${req.customerName} approved your revised quotation of ₹${req.proposedCustomerTotal}. You may proceed with the service.`,
+            type: 'PRICE_CHANGE_APPROVED',
+            bookingId: req.bookingId,
+          });
+
+          resolve(req);
+        }, 300);
+      });
+    }
+  },
+
+  /**
+   * Customer declines revised proposal
+   */
+  rejectProposal: async (requestId, reason = '') => {
+    try {
+      const res = await apiClient.post(`/customer/price-changes/${requestId}/reject`, {
+        reason: reason,
+      });
+      if (res.data) {
+        const proposals = getStoredProposals();
+        const p = proposals.find((x) => x.id === requestId || String(x.id) === String(res.data.id));
+        if (p) {
+          p.status = 'REJECTED';
+          p.customerRejectionReason = reason;
+          p.decidedAt = res.data.decidedAt || new Date().toISOString();
+          saveStoredProposals(proposals);
+        }
+        return res.data;
+      }
+      throw new Error('Rejection response empty');
+    } catch {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const proposals = getStoredProposals();
+          const req = proposals.find((p) => p.id === requestId);
+          if (!req) return reject(new Error('Price change proposal not found'));
+          if (req.status !== 'PENDING_CUSTOMER_APPROVAL') {
+            return reject(new Error(`This proposal has already been ${req.status}`));
+          }
+
+          req.status = 'REJECTED';
+          req.customerRejectionReason = reason ? reason.trim() : 'Declined by customer';
+          req.decidedAt = new Date().toISOString();
+          saveStoredProposals(proposals);
+
+          // Previous approved invoice remains completely unchanged
+          const b = DEMO_BOOKINGS.find(
+            (item) => item.id === req.bookingId || item.bookingReference === req.bookingId
+          );
+          if (b) {
+            if (!b.statusHistory) b.statusHistory = [];
+            b.statusHistory.push({
+              status: b.status,
+              timestamp: new Date().toISOString(),
+              note: `Customer rejected proposed charge of ₹${req.proposedCustomerTotal}.${reason ? ` Reason: "${reason.trim()}".` : ''} Previous approved quotation (₹${req.originalCustomerTotal}) remains active.`,
+            });
+          }
+
+          notificationApi.create({
+            recipientEmail: req.technicianId,
+            title: `Charges Rejected: #${req.bookingReference}`,
+            message: `Customer ${req.customerName} declined your price revision proposal of ₹${req.proposedCustomerTotal}.${reason ? ` Feedback: "${reason.trim()}".` : ''} Previous quotation of ₹${req.originalCustomerTotal} remains in effect.`,
+            type: 'PRICE_CHANGE_REJECTED',
+            bookingId: req.bookingId,
+          });
+
+          resolve(req);
+        }, 300);
+      });
+    }
+  },
+};
+
+/* ==========================================================================
+   User Notifications API
+   ========================================================================== */
+export const notificationApi = {
+  getAll: async () => {
+    try {
+      const res = await apiClient.get('/notifications');
+      if (res && res.data && res.data.length > 0) {
+        return res.data;
+      }
+    } catch {
+      // Fallback to local storage
+    }
+    const raw = localStorage.getItem(STORAGE_KEY_NOTIFICATIONS);
+    return raw ? JSON.parse(raw) : [];
+  },
+
+  create: (item) => {
+    try {
+      const list = notificationApi.getAllSync();
+      const newItem = {
+        id: 'NOTIF-' + Date.now(),
+        read: false,
+        createdAt: new Date().toISOString(),
+        ...item,
+      };
+      list.unshift(newItem);
+      localStorage.setItem(STORAGE_KEY_NOTIFICATIONS, JSON.stringify(list));
+      return newItem;
+    } catch (err) {
+      console.error('Error creating notification', err);
+    }
+  },
+
+  getAllSync: () => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_NOTIFICATIONS);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  markAsRead: async (id) => {
+    try {
+      if (typeof id === 'number' || (typeof id === 'string' && /^\d+$/.test(id))) {
+        await apiClient.patch(`/notifications/${id}/read`);
+      }
+    } catch (err) {
+      console.warn('Backend mark notification read error:', err);
+    }
+    try {
+      const list = notificationApi.getAllSync();
+      const updated = list.map((n) => (n.id === id ? { ...n, read: true } : n));
+      localStorage.setItem(STORAGE_KEY_NOTIFICATIONS, JSON.stringify(updated));
+    } catch (err) {
+      console.error('Error marking notification read', err);
+    }
+  },
+};
+
 export default apiClient;
+
